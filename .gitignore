@@ -15,5 +15,4 @@ evals/*.log
 evals/*_results.json
 evals/.cache/
 # node / dashboard build
-node_modules/
-dist/
+dashboard/node_modules/

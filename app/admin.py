@@ -47,7 +47,7 @@ class Login(BaseModel):
 def login(body: Login, request: Request):
     password, secret = _creds()
     if not password or not secret:
-        raise HTTPException(503, "admin login is disabled: set ADMIN_PASSWORD and JWT_SECRET")
+        raise HTTPException(503, "admin login is disabled: set ADMIN_PASSWORD and a JWT_SECRET of at least 16 characters")
     ip = request.client.host if request.client else "?"
     if not kv.allow(f"login:{ip}", limit=10, window=60):
         raise HTTPException(429, "too many attempts")
@@ -328,8 +328,12 @@ def analytics_view(date: dt.date | None = None, days: int = 7):
 
 
 @router.get("/updates", dependencies=auth)
-def updates(after_order: int = 0, after_escalation: int = 0, after_message: int = 0):
-    return events.poll({"order": after_order, "escalation": after_escalation, "message": after_message})
+def updates(after_order: int | None = None, after_escalation: int | None = None, after_message: int | None = None):
+    """New rows since the watermarks. With no watermarks it only returns the current ones (where a fresh page starts from)."""
+    if after_order is None and after_escalation is None and after_message is None:
+        with session_scope() as s:
+            return {"orders": [], "escalations": [], "messages": [], "watermarks": events.watermarks(s)}
+    return events.poll({"order": after_order or 0, "escalation": after_escalation or 0, "message": after_message or 0})
 
 
 @router.get("/events", dependencies=auth)

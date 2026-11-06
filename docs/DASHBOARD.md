@@ -1,5 +1,21 @@
 # Owner dashboard (M6 API, M7 UI)
 
+## The UI (`dashboard/`)
+React 18 + Vite + Tailwind 4, no router or state library (hash routes: `#/orders/SC-10432`, `#/inbox/<phone>`). Served by the API at **`/admin`** from `dashboard/dist`, which is committed so a clone works without Node; rebuild with `cd dashboard && npm install && npm run build` (the Dockerfile builds it itself). For development run `npm run dev` (port 5173, proxies `/api` to port 8000).
+
+| Page | What the owner does there |
+|---|---|
+| Orders | status tabs, search (code, name, phone), date and delivery/pickup filters; a drawer with items, totals, address, timeline; **Payment received / Could not verify** for orders waiting for an advance; forward buttons (rider name and ETA for out-for-delivery); edit details; cancel |
+| Inbox | every chat with the tools the bot used, which model answered and how fast; take over, reply as the shop, hand back; the order being put together; a Roman-Urdu/Urdu-friendly text direction |
+| Needs you | open escalations with what was already collected and the last messages, so the customer is never asked again; resolve, or resolve and hand back |
+| Menu & stock | price and stock per variant, sold out / back in stock; the bot sees it on its next message |
+| Customers | spend, points, language, addresses, orders |
+| Analytics | today's orders and revenue, top items, areas, bot conversion, escalation rate, reply time, **model usage against the free-tier limits** |
+
+Live updates: the page asks `/updates` every 4 seconds, starting from "now" (so a refresh never replays old orders). A new order or escalation shows a toast and plays a short sound (a bell in the corner mutes it); the red and amber badges in the menu follow the open escalations and the payments to check. Polling was chosen over server-sent events in the UI because it works through any proxy and needs no token in the URL; the SSE route stays available for other clients.
+
+The login sets nothing on the server: the JWT is kept in `localStorage` and any 401 sends the owner back to the login page.
+
 `ADMIN_PASSWORD` and `JWT_SECRET` (16 characters or more) in `.env` switch the dashboard on; with either missing or weak the login answers 503 (it is off, never open).
 `POST /api/admin/login {"password": "..."}` returns a JWT (12 hours, HS256). Every other route needs `Authorization: Bearer <token>` (the server-sent-events route also accepts `?token=`). Login attempts are limited to 10 per minute per address.
 

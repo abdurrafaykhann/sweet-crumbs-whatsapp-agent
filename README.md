@@ -2,7 +2,7 @@
 
 An AI agent that takes bakery orders on WhatsApp in **English, Roman Urdu and Urdu script**, built as a portfolio project for a fictional Karachi bakery. It understands meaning (no keyword matching), collects every detail before drafting an order, enforces the business rules in code, and never places an order without an explicit "yes" in a later message.
 
-> **Rebuild in progress.** Milestones M0 to M6 are done; the owner dashboard, human-handoff silence, provider fallback and the eval suite follow. See [docs/MILESTONES.md](docs/MILESTONES.md). The single source of truth for the business is [`data/sweet-crumbs-bakery-demo.md`](data/sweet-crumbs-bakery-demo.md).
+> **Rebuild in progress.** Milestones M0 to M7 are done; the eval suite and the final write-up follow. See [docs/MILESTONES.md](docs/MILESTONES.md). The single source of truth for the business is [`data/sweet-crumbs-bakery-demo.md`](data/sweet-crumbs-bakery-demo.md).
 
 ```mermaid
 flowchart LR
@@ -25,7 +25,7 @@ python -m app.seed                      # load the demo data from the spec
 python -m app.run                       # seed if empty + start: web chat http://localhost:8000/ui, /health, /webhook
 python -m app.chat_cli --phone 923000000101 --debug     # chat as Ayesha in the terminal (/image, /reset, /state, /quit)
 docker compose up --build               # app + PostgreSQL + Redis, seeds the demo data on first start
-pytest                                  # 196 tests
+pytest                                  # 198 tests
 ```
 Demo customers (phone numbers and their orders) are in section 11 and 12 of the spec; set `DEMO_NOW=2026-11-06T14:00:00` for the spec's "today" (Friday 6 November 2026).
 
@@ -39,10 +39,17 @@ Demo customers (phone numbers and their orders) are in section 11 and 12 of the 
 
 ![Chat tester](docs/screenshots/chat-tester.jpg)
 - **Owner dashboard API (M6):** JWT login, orders with filters and search, status changes that message the customer in their language, advance verification by a person, inbox with take over / reply / hand back, escalation queue, menu and stock edits the bot sees at once, customers, analytics, live events ([docs/DASHBOARD.md](docs/DASHBOARD.md)).
-- **Tests:** 196, on SQLite and on PostgreSQL 17 (Redis paths on `fakeredis`). The model is replaced by a scripted fake in tests; live conversations on a real model are described in [docs/AGENT.md](docs/AGENT.md).
+- **Owner dashboard (M7):** React + Vite + Tailwind, served by the API at `/admin` (password login, live orders with a sound, order detail with status buttons, inbox with take over / reply / hand back, "needs a person" queue, menu and stock editing, customers, analytics with model usage against the free-tier limits). Built to work on a phone.
+
+![Orders](docs/screenshots/dashboard-order.jpg)
+![Inbox](docs/screenshots/dashboard-inbox.jpg)
+![Analytics](docs/screenshots/dashboard-analytics.jpg)
+![Payment check on a phone](docs/screenshots/dashboard-mobile-payment.jpg)
+
+- **Tests:** 198, on SQLite and on PostgreSQL 17 (Redis paths on `fakeredis`). The model is replaced by a scripted fake in tests; live conversations on a real model are described in [docs/AGENT.md](docs/AGENT.md).
 
 ## Not built yet
-Owner dashboard UI (M7), LLM-judged evals with rewordings (M8), final write-up (M9). No real WhatsApp number is connected, and nothing is deployed.
+LLM-judged evals with rewordings (M8), final write-up (M9). No real WhatsApp number is connected, and nothing is deployed.
 
 ## Free-tier note
 Everything runs on the free tiers of Groq and Google Gemini. Free tiers may use prompts to improve their models, so only demo data should go through them; real customer data needs a paid tier. The free limits are tight (see [docs/DECISIONS.md](docs/DECISIONS.md)), which is why the prompt, the tool definitions and the chat history are all kept small.

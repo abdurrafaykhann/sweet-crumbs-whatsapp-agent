@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from . import admin, agent, devtools, handoff, inbound, kv, whatsapp
@@ -18,6 +19,7 @@ from .database import get_engine
 
 log = logging.getLogger("sweetcrumbs")
 STATIC = pathlib.Path(__file__).parent / "static"
+DASHBOARD = pathlib.Path(__file__).resolve().parent.parent / "dashboard" / "dist"   # built by `npm run build` in dashboard/
 
 VERIFY_TOKEN = os.environ.get("WA_VERIFY_TOKEN", "dev-verify-token")
 WA_APP_SECRET = os.environ.get("WA_APP_SECRET", "")
@@ -186,3 +188,12 @@ async def webhook(req: Request, bg: BackgroundTasks):
                     continue
                 bg.add_task(process, sender, text, mid)
     return {"ok": True}
+
+
+# The owner dashboard (React single-page app, hash routes). Mounted last so it never shadows an API route.
+if DASHBOARD.is_dir():
+    app.mount("/admin", StaticFiles(directory=DASHBOARD, html=True), name="dashboard")
+else:
+    @app.get("/admin", include_in_schema=False)
+    def dashboard_missing():
+        return PlainTextResponse("The dashboard is not built. Run: cd dashboard && npm install && npm run build", status_code=503)

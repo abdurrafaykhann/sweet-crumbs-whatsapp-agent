@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-crumb-50: #fff7ed;
+  --color-crumb-100: #ffedd5;
+  --color-crumb-500: #c2410c;
+  --color-crumb-600: #9a3412;
+  --color-crumb-700: #7c2d12;
+  --color-crumb-900: #431407;
+}
+
+html, body, #root { height: 100%; }
+body { background: #faf7f5; color: #1c1917; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Nastaliq Urdu", sans-serif; -webkit-tap-highlight-color: transparent; }
+
+/* Urdu script reads right to left inside chat bubbles */
+.rtl-text { unicode-bidi: plaintext; text-align: start; }
+
+@keyframes pop { from { transform: translateY(-8px); opacity: 0 } to { transform: none; opacity: 1 } }
+.pop { animation: pop .18s ease-out; }

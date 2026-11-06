@@ -15,7 +15,7 @@ def main():
     import uvicorn
     print("demo data loaded" if prepare() else "database already has data, keeping it")
     port = int(os.environ.get("PORT", "8000"))
-    print(f"chat page:  http://localhost:{port}/ui    health: http://localhost:{port}/health    (dashboard: see docs/DASHBOARD.md)")
+    print(f"chat page:  http://localhost:{port}/ui    health: http://localhost:{port}/health    (dashboard: http://localhost:{port}/admin)")
     uvicorn.run("app.main:app", host=os.environ.get("HOST", "0.0.0.0"), port=port)
 
 

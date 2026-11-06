@@ -284,3 +284,21 @@ def test_server_sent_events_stream(api):
         return [chunk async for chunk in events.stream(wm, interval=0, max_loops=2)]
     chunks = asyncio.run(collect())
     assert chunks[0].startswith("event: order\ndata: ") and "SC-" in chunks[0] and chunks[1].startswith(": keep-alive")
+
+
+# ----------------------------------------------------------------------------- the dashboard UI is served by the API
+def test_dashboard_page_is_served_at_admin(api):
+    anon = TestClient(main.app)
+    from app.main import DASHBOARD
+    r = anon.get("/admin/")
+    if DASHBOARD.is_dir():
+        assert r.status_code == 200 and '<div id="root">' in r.text            # the built React app
+        assert "/admin/assets/" in r.text                                       # assets are loaded from under /admin
+    else:
+        assert r.status_code in (404, 503)
+
+
+def test_api_routes_are_not_shadowed_by_the_dashboard(api):
+    anon = TestClient(main.app)
+    assert anon.get("/health").status_code == 200
+    assert anon.get("/api/admin/orders").status_code == 401                      # still behind the login
