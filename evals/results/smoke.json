@@ -1,9 +1,9 @@
 {
- "bot": "groq:openai/gpt-oss-120b",
- "judge": "google_genai:gemini-flash-lite-latest",
+ "bot": "google_genai:gemini-flash-lite-latest",
+ "judge": "groq:openai/gpt-oss-120b",
  "summary": {
-  "variants_run": 1,
-  "errors": 1,
+  "variants_run": 2,
+  "errors": 2,
   "unjudged": 0,
   "unjudged_hard_pass": 0,
   "passed": 0,
@@ -23,6 +23,32 @@
    "turns": [
     {
      "user": "Mera order kahan hai",
+     "reply": "Maazrat, technical masla aa gaya hai. Hamari team jald yahan aap ko jawab degi.",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 5.2,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-120b",
+   "seconds": 5.2,
+   "tokens": 0,
+   "provider": "",
+   "status": "error",
+   "hard_failures": [],
+   "judge": {},
+   "passed": false,
+   "note": "the model was unavailable or crashed during this run"
+  },
+  {
+   "case": "28",
+   "category": "status",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Mere points?",
      "reply": "",
      "tools": [],
      "escalated": true,
@@ -31,8 +57,8 @@
      "tokens": 0
     }
    ],
-   "bot": "groq:openai/gpt-oss-120b",
-   "judge_model": "google_genai:gemini-flash-lite-latest",
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-120b",
    "seconds": 0.0,
    "tokens": 0,
    "provider": "",

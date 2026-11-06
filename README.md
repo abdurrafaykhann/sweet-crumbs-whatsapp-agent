@@ -63,7 +63,9 @@ python -m evals.runner --rewordings 1 --model groq:openai/gpt-oss-120b --judge g
 ```
 Passed runs are cached, so a re-run only repeats failures; runs where a provider's quota ran out are reported as errors or "unjudged", never as failures. Reports are written to `evals/results/<tag>.md` and `.json`.
 
-**Results: not available yet.** On the day I ran them, both free tiers ran out of quota partway through (Groq's daily tokens, then Gemini's daily requests), so no complete pass rate exists and I will not invent one. Two live smoke cases passed on both providers (price lookup; manager request needed a language fix noted by the judge). The harness itself is covered by offline tests. Fill in this table after running the two commands above on a fresh quota day:
+**Results: not available yet.** On the day I ran them, both free tiers ran out of quota partway through (Groq's daily tokens, then Gemini's daily requests), so no complete pass rate exists and I will not invent one. Two live smoke cases passed on both providers (price lookup; manager request needed a language fix noted by the judge). The harness itself is covered by offline tests. **Partial run (Gemini flash-lite as the bot, Groq as the judge; `evals/results/gemini-flash-lite.*`):** 84 conversations were attempted. 25 were lost because Gemini's quota ran out, and in the other 59 the Groq judge was out of quota for most of them, so no judge verdict exists for them. The report's "passed 7/59" counts those missing verdicts as failures (that run used the first version of the runner, which I have since fixed to report them as "unjudged"), so ignore that number. What the run does show: **58 of the 59 conversations passed every deterministic check** (prices, delivery fees, tool use, no unconfirmed orders, no discounts, no leaked data). Those checks cover facts and state only, not tone or language, which is what the judge is for.
+
+Fill in this table after running the two commands above on a fresh quota day:
 
 | Bot model | Runs | Passed | Deterministic | Judge | Avg time |
 |---|---|---|---|---|---|
