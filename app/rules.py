@@ -299,6 +299,22 @@ def cancellation(status: str, is_custom: bool, slot_start: dt.datetime | None, n
     return {"allowed": True, "escalate": False, "refund": "n/a", "reason": "standard"}
 
 
+def next_statuses(status: str, fulfilment: str) -> list[str]:
+    """Statuses staff may move an order to from `status` (delivery and pickup orders have different last steps)."""
+    flow = {"draft": ["confirmed", "cancelled"], "awaiting_advance": ["cancelled"],   # an advance is verified through the payment action
+            "confirmed": ["preparing", "cancelled"], "scheduled": ["preparing", "cancelled"],
+            "preparing": ["out_for_delivery"] if fulfilment == "delivery" else ["ready_for_pickup"],
+            "out_for_delivery": ["delivered"], "ready_for_pickup": ["delivered"]}
+    out = list(flow.get(status, []))
+    if status in ("preparing", "out_for_delivery", "ready_for_pickup"):
+        out.append("cancelled")  # staff can still cancel, the customer cannot (see cancellation())
+    return out
+
+
+def valid_transition(status: str, new_status: str, fulfilment: str) -> bool:
+    return new_status in next_statuses(status, fulfilment)
+
+
 def is_late(promised: dt.datetime, actual: dt.datetime, cfg: RulesConfig = RulesConfig()) -> bool:
     """More than 30 minutes after the promised time: the delivery fee is refunded (a person processes it)."""
     return actual - promised > dt.timedelta(minutes=cfg.late_grace_min)

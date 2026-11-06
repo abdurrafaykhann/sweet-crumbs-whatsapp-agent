@@ -442,7 +442,7 @@ def load_orders(s: Session, md: str, demo_today: dt.date) -> int:
         if spec is None:
             raise SeedError(f"demo order {code} has no item breakdown in app/seed.py build_demo_orders")
         customer = s.query(m.Customer).filter(m.Customer.name.like(f"{r['Customer']}%")).one()
-        o = m.Order(code=code, customer=customer, status=_status_key(r["Status"]), created_at=spec["created"], updated_at=spec["created"],
+        o = m.Order(code=code, customer=customer, source="demo", status=_status_key(r["Status"]), created_at=spec["created"], updated_at=spec["created"],
                     payment_method=spec["pay"], asap=bool(spec.get("asap")), rider_name=spec.get("rider", ""), eta=spec.get("eta"),
                     delivered_at=spec.get("delivered"), cake_message=spec.get("message", ""), notes=spec.get("notes", ""))
         subtotal = 0

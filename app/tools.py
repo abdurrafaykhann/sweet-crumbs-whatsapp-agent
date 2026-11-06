@@ -15,7 +15,7 @@ from langchain_core.runnables import RunnableConfig
 from sqlalchemy import update
 from sqlalchemy.orm import Session
 
-from . import inventory, pricing, repo, rules
+from . import inventory, orders, pricing, repo, rules
 from . import models as m
 from .database import session_scope
 
@@ -370,6 +370,8 @@ def confirm_order(ctx: Ctx) -> dict:
             o.items.append(m.OrderItem(variant_id=ln["variant_id"], sku=ln["sku"], name=ln["name"], qty=ln["qty"], unit_price=ln["unit_price"],
                                        line_total=ln["line_total"], options=ln["options"]))
         s.add(o)
+        s.flush()
+        orders.add_event(s, o, "placed", f"Placed by the assistant ({status}, {st['payment_method']}, total Rs {o.total:,})", ctx.now)
         s.query(m.Draft).filter(m.Draft.phone == ctx.phone).delete()
         pay = pricing._setting(s, "payment_methods", {})
         how = {"cash": f"Pay Rs {o.total - o.advance_due:,} in cash to the rider" if st["fulfilment"] == "delivery" else f"Pay Rs {o.total:,} at pickup",
@@ -468,6 +470,7 @@ def cancel_order(ctx: Ctx, code: str) -> dict:
             for vid, q in (item.options or {}).get("reserve") or []:
                 inventory.release(s, vid, q)
         o.status, o.updated_at = "cancelled", ctx.now
+        orders.add_event(s, o, "cancel", "Cancelled by the customer in the chat", ctx.now)
         out = {"cancelled": True, "code": o.code}
         if rule["escalate"]:  # custom cake: a person handles the advance refund
             _escalate(s, ctx, "custom_cake_cancellation", f"Custom order {o.code} cancelled; advance refund: {rule['refund']}", "normal", o.code)
@@ -531,6 +534,7 @@ def modify_order(ctx: Ctx, code: str, items: list | None = None, address: str | 
         o.payment_method, o.notes, o.updated_at = st["payment_method"], st.get("notes") or "", ctx.now
         msgs = [ln["options"].get("message") for ln in i["lines"] if ln["options"].get("message")]
         o.cake_message = msgs[0] if msgs else ""
+        orders.add_event(s, o, "edit", "Changed by the customer in the chat", ctx.now)
         return {"changed": True, "order": _order_card(s, o, ctx.now), "new_total": o.total}
 
 

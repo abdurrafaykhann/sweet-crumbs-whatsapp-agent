@@ -12,7 +12,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel
 
-from . import agent, devtools, handoff, inbound, kv, whatsapp
+from . import admin, agent, devtools, handoff, inbound, kv, whatsapp
 from . import models as m
 from .database import get_engine
 
@@ -49,6 +49,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Sweet Crumbs WhatsApp agent", lifespan=lifespan)
+app.include_router(admin.router)
 
 
 @app.get("/health")

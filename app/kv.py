@@ -22,6 +22,13 @@ def client():
     return _client
 
 
+def reset_memory() -> None:
+    """Forget the in-memory counters, locks and queues (tests)."""
+    with _mem_lock:
+        _mem.clear()
+        _mem_locks.clear()
+
+
 def set_client(c):  # tests inject fakeredis here
     global _client
     _client = c

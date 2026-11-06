@@ -14,5 +14,5 @@ langgraph-checkpoint-sqlite>=3.0
 langgraph-checkpoint-postgres>=3.0
 langchain-groq>=1.0
 langchain-google-genai>=4.0
-# legacy prototype (removed in M2)
-anthropic>=0.40
+# dashboard login
+pyjwt>=2.8

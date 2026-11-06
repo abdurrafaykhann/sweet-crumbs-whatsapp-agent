@@ -162,6 +162,7 @@ class Order(Base):
     code: Mapped[str] = mapped_column(String(12), unique=True)               # SC-10421
     customer_id: Mapped[int] = mapped_column(ForeignKey("customers.id"))
     status: Mapped[str] = mapped_column(String(30), default="draft")
+    source: Mapped[str] = mapped_column(String(10), default="bot")           # bot | demo (seeded) | staff
     fulfilment: Mapped[str] = mapped_column(String(10), default="delivery")  # delivery | pickup
     branch_id: Mapped[int | None] = mapped_column(ForeignKey("branches.id"), nullable=True)
     address_text: Mapped[str] = mapped_column(String(300), default="")
@@ -191,6 +192,16 @@ class Order(Base):
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
     customer: Mapped[Customer] = relationship(back_populates="orders")
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
+
+
+class OrderEvent(Base):
+    """Timeline of an order: placed, status changes, payment checks, edits, cancellations (shown on the order page)."""
+    __tablename__ = "order_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), index=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
+    kind: Mapped[str] = mapped_column(String(12))
+    text: Mapped[str] = mapped_column(String(300))
 
 
 class OrderItem(Base):
