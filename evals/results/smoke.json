@@ -1,0 +1,121 @@
+{
+ "bot": "google_genai:gemini-flash-lite-latest",
+ "judge": "groq:openai/gpt-oss-120b",
+ "summary": {
+  "variants_run": 2,
+  "errors": 0,
+  "passed": 1,
+  "counted": 2,
+  "hard_check_pass": 2,
+  "judge_pass": 1,
+  "by_category": {
+   "handoff": [
+    0,
+    1
+   ],
+   "pricing": [
+    1,
+    1
+   ]
+  },
+  "by_style": {
+   "original": [
+    1,
+    2
+   ]
+  },
+  "avg_seconds": 8.8,
+  "avg_tokens": 5496
+ },
+ "records": [
+  {
+   "case": "2",
+   "category": "pricing",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Chocolate cake 2 pound kitne ka hai",
+     "reply": "Hamara 2 lb Chocolate Fudge cake Rs 3,200 ka hai 🍰 \n\nKya aap ise order karna chahenge?",
+     "tools": [
+      {
+       "name": "search_menu",
+       "args": {
+        "category": "Cakes",
+        "query": "chocolate cake"
+       },
+       "result": "{\"results\": [{\"sku\": \"CK-CHOC\", \"name\": \"Chocolate Fudge\", \"category\": \"Cakes\", \"notes\": \"Best seller\", \"variants\": [{\"label\": \"1 lb\", \"price\": 1700, \"left\": 6, \"in_stock\": true}, {\"label\": \"2 lb\", \"price\": 3200, \"left\": 4, \"in_stock\": true}, {\"label\": \"3 lb\", \"price\": 4600, \"left\": 2, \"in_stock\": true}], \"flags\": [\"eggless possible (+Rs 300/lb, 24 h notice)\"]}, {\"sku\": \"CK-SFCH\", \"name\": \"Sugar-F"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 7.2,
+     "tokens": 5996
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-120b",
+   "seconds": 7.2,
+   "tokens": 5996,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant gave correct price in Roman Urdu, used tool, warm tone, asked confirmation, no unsafe claims; all criteria satisfied."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "23",
+   "category": "handoff",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Manager se baat karao",
+     "reply": "Bilkul, I'm connecting you with our manager right now. Someone from our team will reply here shortly!",
+     "tools": [
+      {
+       "name": "escalate_to_human",
+       "args": {
+        "reason": "Customer requested to speak with the manager",
+        "summary": "Customer asked to speak with the manager. Handing over to staff.",
+        "priority": "normal"
+       },
+       "result": "{\"escalated\": true, \"id\": 1, \"hint\": \"tell the customer once that our staff will reply in this chat; do not promise outcomes or refunds\"}"
+      }
+     ],
+     "escalated": true,
+     "provider": "google_genai",
+     "seconds": 10.5,
+     "tokens": 4995
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-120b",
+   "seconds": 10.5,
+   "tokens": 4995,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": false,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": false,
+    "reason": "Assistant mixed English with Roman Urdu despite customer using only Roman Urdu, violating language criterion."
+   },
+   "judged": true,
+   "passed": false
+  }
+ ]
+}

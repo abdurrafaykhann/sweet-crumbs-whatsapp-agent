@@ -16,3 +16,5 @@ evals/*_results.json
 evals/.cache/
 # node / dashboard build
 dashboard/node_modules/
+evals/*.log
+evals/nohup.out
