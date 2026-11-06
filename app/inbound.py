@@ -26,6 +26,15 @@ def process_incoming(phone: str, text: str, send, now=None) -> None:
     drain(phone, send, now=now)
 
 
+def process_media(phone: str, kind: str, media_id: str, caption: str, send, now=None) -> None:
+    """Images, documents, voice notes and other non-text messages: handled without the LLM (see app/handoff.py)."""
+    from . import handoff
+    with kv.customer_lock(phone, timeout=60):  # proceed even if the lock times out: logging the message matters more
+        text = handoff.handle_media(phone, kind, media_id, caption, now)
+    if text:
+        send(phone, text)
+
+
 def drain(phone: str, send, now=None) -> None:
     qkey, lkey = _key("q", phone), _key("lock", phone)
     while True:

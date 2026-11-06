@@ -436,7 +436,8 @@ def _escalate(s: Session, ctx: Ctx, reason: str, summary: str = "", priority: st
             open_one.order_code = order_code
         return open_one
     st = load_state(s, ctx.phone)
-    e = m.Escalation(phone=ctx.phone, order_code=order_code, reason=reason[:120], summary=summary, priority=priority,
+    last_id = s.query(m.Message.id).filter(m.Message.phone == ctx.phone).order_by(m.Message.id.desc()).limit(1).scalar() or 0
+    e = m.Escalation(phone=ctx.phone, message_id=last_id, order_code=order_code, reason=reason[:120], summary=summary, priority=priority,
                      collected=json.loads(json.dumps(st)) if st.get("items") else {}, created_at=ctx.now)
     s.add(e)
     conv = s.get(m.Conversation, ctx.phone)

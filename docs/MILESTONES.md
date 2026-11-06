@@ -8,7 +8,7 @@ Rebuild of the prototype against [`data/sweet-crumbs-bakery-demo.md`](../data/sw
 | M1 | Data: SQLAlchemy models, seed script from the md (menu, zones, branches, deals, 8 customers, 9 orders), Python business rules + unit tests (zones, fees, minimum, notice periods, advance, Jummah, same-day cutoff), atomic inventory. See [DATA_AND_RULES.md](DATA_AND_RULES.md) | **done** (63 tests, SQLite + PostgreSQL) |
 | M2 | Tools + LangGraph agent core: spec tools, per-phone memory, structured order state, short prompt, `get_info`, confirm-in-later-turn guard, keyword bot removed. See [AGENT.md](AGENT.md) | **done** (127 tests, SQLite + PostgreSQL; live-tested on Gemini) |
 | M3 | LLM layer: Groq primary, Gemini fallback, backoff with jitter, provider and token logging, per-customer queue, never-no-reply fallback. See [LLM.md](LLM.md) | **done** (159 tests; failover verified live) |
-| M4 | Human handoff: summary for the owner, bot silent while escalated, take over / hand back, payment screenshots to a human | todo |
+| M4 | Human handoff: summary for the owner, bot silent while escalated, take over / hand back, payment screenshots to a human. See [HANDOFF.md](HANDOFF.md) | **done** (170 tests) |
 | M5 | Webhook against the new core, terminal chat simulator, web chat page | todo |
 | M6 | Dashboard backend: login, orders (filters, status + WhatsApp message), inbox, escalations, menu/stock, customers, analytics, live events | todo |
 | M7 | Dashboard UI: React + Vite + Tailwind, mobile friendly | todo |

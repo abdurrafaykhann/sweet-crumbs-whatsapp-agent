@@ -237,6 +237,7 @@ class Escalation(Base):
     priority: Mapped[str] = mapped_column(String(10), default="normal")      # normal | high
     status: Mapped[str] = mapped_column(String(10), default="open")          # open | resolved
     collected: Mapped[dict] = mapped_column(JSON, default=dict)               # draft/state at the moment of handoff
+    message_id: Mapped[int] = mapped_column(Integer, default=0)               # last logged message when the handoff began
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
     resolved_at: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
 
@@ -249,6 +250,7 @@ class Message(Base):
     role: Mapped[str] = mapped_column(String(10))                            # customer | bot | human
     text: Mapped[str] = mapped_column(Text, default="")
     tools: Mapped[list] = mapped_column(JSON, default=list)
+    attachment: Mapped[dict] = mapped_column(JSON, default=dict)                      # customer images/documents: {kind, media_id}
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)                       # bot messages: time to answer the customer
     provider: Mapped[str] = mapped_column(String(20), default="")                     # bot messages: which LLM provider answered
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)

@@ -24,7 +24,6 @@ WA_PHONE_ID = os.environ.get("WA_PHONE_NUMBER_ID", "")
 WA_APP_SECRET = os.environ.get("WA_APP_SECRET", "")
 RATE_LIMIT = int(os.environ.get("RATE_LIMIT_PER_MIN", "20"))
 GRAPH = os.environ.get("WA_GRAPH_URL", "https://graph.facebook.com/v21.0")
-NON_TEXT = "Sorry, I can only read text right now. Could you type your message?"
 
 
 @asynccontextmanager
@@ -98,6 +97,11 @@ def mark_read(message_id: str):
         pass
 
 
+def process_media(sender: str, kind: str, media_id: str, caption: str, message_id: str):
+    mark_read(message_id)
+    inbound.process_media(sender, kind, media_id, caption, send=send_whatsapp)
+
+
 def process(sender: str, text: str, message_id: str):
     mark_read(message_id)
     inbound.process_incoming(sender, text, send=send_whatsapp)
@@ -118,8 +122,10 @@ async def webhook(req: Request, bg: BackgroundTasks):
                 mid, sender = msg.get("id", ""), msg.get("from", "")
                 if not sender or not kv.first_time(mid):
                     continue  # redelivery of a message we already handled
-                if msg.get("type") != "text":
-                    bg.add_task(send_whatsapp, sender, NON_TEXT)  # payment screenshots go to a human in M4
+                kind = msg.get("type", "")
+                if kind != "text":  # images/documents (payment proof) go to a person; voice notes etc. get a polite "text only"
+                    media = msg.get(kind) or {}
+                    bg.add_task(process_media, sender, kind, media.get("id", ""), media.get("caption", ""), mid)
                     continue
                 if not kv.allow(sender, RATE_LIMIT):
                     log.warning("rate limited %s", sender)

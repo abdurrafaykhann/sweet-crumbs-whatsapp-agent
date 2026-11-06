@@ -76,10 +76,16 @@ def test_verification_handshake(api):
     assert client.get("/webhook", params={"hub.mode": "subscribe", "hub.verify_token": "wrong", "hub.challenge": "42"}).status_code == 403
 
 
-def test_non_text_messages_get_a_polite_reply(api):
+def test_voice_notes_get_a_polite_text_only_reply(api):
     client, sent, asked = api
     client.post("/webhook", json=payload("wamid.3", "", typ="audio"))
-    assert sent == [("923001112233", main.NON_TEXT)] and asked == []
+    assert len(sent) == 1 and "text" in sent[0][1].lower() and asked == []
+
+
+def test_a_payment_screenshot_goes_to_a_person(api):
+    client, sent, asked = api
+    client.post("/webhook", json=payload("wamid.4", "", sender="923000000105", typ="image"))     # Sana has an order waiting for her advance
+    assert len(sent) == 1 and "verify" in sent[0][1].lower() and "received" not in sent[0][1].lower() and asked == []
 
 
 def test_rate_limit_per_customer(api, monkeypatch):
