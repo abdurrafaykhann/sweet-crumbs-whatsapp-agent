@@ -5,9 +5,25 @@
     python -m app.chat_cli --debug               # also show which tools the bot used
     python -m app.chat_cli --now 2026-11-06T21:30:00
 
+Commands inside the chat:  /image  send a payment screenshot   /reset  forget this chat   /state  show the order in progress   /quit
+
 Seed the database first: python -m app.seed"""
 import argparse
 import os
+
+
+def command(cmd: str, phone: str) -> None:
+    from . import devtools, handoff
+    if cmd == "/image":
+        print(f"bot > {handoff.handle_media(phone, 'image', 'cli-upload') or '(staff have this chat: no automatic reply)'}\n")
+    elif cmd == "/reset":
+        devtools.reset_conversation(phone)
+        print("(chat reset: draft, messages and memory forgotten; orders are kept)\n")
+    elif cmd == "/state":
+        import json
+        print(json.dumps(devtools.chat_state(phone), indent=2, ensure_ascii=False), "\n")
+    else:
+        print("commands: /image  /reset  /state  /quit\n")
 
 
 def main():
@@ -27,9 +43,12 @@ def main():
             text = input("you > ").strip()
         except (EOFError, KeyboardInterrupt):
             break
-        if text.lower() in ("quit", "exit", "q"):
+        if text.lower() in ("quit", "exit", "q", "/quit"):
             break
         if not text:
+            continue
+        if text.startswith("/"):
+            command(text.lower(), args.phone)
             continue
         r = agent.respond(args.phone, text)
         print(f"bot > {r.text}\n")

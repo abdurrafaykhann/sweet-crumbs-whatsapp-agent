@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sweet Crumbs chat tester</title>
+<style>
+:root{--bg:#e9e4da;--panel:#fff;--ink:#111b21;--mut:#667781;--hdr:#075e54;--out:#d9fdd3;--in:#fff;--line:#e2ddd2;--acc:#128c7e;--warn:#b4530f;--chip:#efeae0}
+@media (prefers-color-scheme:dark){:root{--bg:#0b141a;--panel:#111b21;--ink:#e9edef;--mut:#8696a0;--hdr:#1f2c34;--out:#005c4b;--in:#202c33;--line:#222d34;--acc:#25d366;--warn:#f2a464;--chip:#1d282f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+.app{display:grid;grid-template-columns:230px minmax(320px,1fr) 300px;gap:14px;max-width:1150px;margin:0 auto;padding:14px;height:100vh}
+@media(max-width:900px){.app{grid-template-columns:1fr;height:auto}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-height:0}
+h2{margin:0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.pad{padding:12px}
+.who button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);padding:9px 12px;cursor:pointer;font:inherit}
+.who button.on{background:var(--chip)}.who small{color:var(--mut);display:block}
+.chat{height:min(760px,calc(100vh - 28px))}
+.top{background:var(--hdr);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center}
+.top small{opacity:.8;display:block;font-size:12px}
+.msgs{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.b{max-width:82%;padding:7px 10px;border-radius:10px;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 1px 1px #0002}
+.me{align-self:flex-end;background:var(--out)}.bot{align-self:flex-start;background:var(--in)}.human{align-self:flex-start;background:#fff3c4;color:#111}
+.note{align-self:center;color:var(--mut);font-size:12px}
+.tools{margin-top:4px;display:flex;gap:4px;flex-wrap:wrap}.tools span{font-size:11px;background:var(--chip);border-radius:8px;padding:1px 7px;color:var(--mut)}
+form{display:flex;gap:8px;padding:10px;background:var(--panel)}
+input{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:10px 14px;font:inherit}
+button.send{border:0;background:var(--acc);color:#fff;border-radius:50%;width:42px;height:42px;font-size:18px;cursor:pointer}
+.tool{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+dl{margin:8px 0 0;font-size:13px}dt{color:var(--mut);margin-top:6px}dd{margin:0}
+.warn{color:var(--warn)}
+input:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card who"><div class="pad"><h2>Customers</h2></div><div id="who"></div>
+    <div class="pad"><input id="other" placeholder="or any phone number" aria-label="Phone number"></div></div>
+  <div class="card chat">
+    <div class="top"><div><b id="title">Sweet Crumbs Bakery</b><small id="sub"></small></div><small id="clock"></small></div>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <form id="f"><input id="t" placeholder="Type a message" autocomplete="off" aria-label="Message"><button class="send" aria-label="Send">&#10148;</button></form>
+  </div>
+  <div class="card"><div class="pad"><h2>Behind the scenes</h2>
+    <div class="row"><button class="tool" id="img">&#128206; Send payment screenshot</button><button class="tool" id="reset">Reset this chat</button><button class="tool" id="reseed">Reseed demo data</button></div>
+    <dl id="state"></dl></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const fmt=s=>esc(s).replace(/\*(.+?)\*/g,'<b>$1</b>');
+let phone=localStorage.getItem('phone')||'923000000108', busy=false;
+async function api(path,opt){const r=await fetch(path,opt);if(!r.ok)throw new Error(r.status+' '+await r.text());return r.json()}
+const post=(p,b)=>api(p,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});
+function bubble(role,text,tools,att){
+  const d=document.createElement('div');
+  if(role==='note'){d.className='note';d.textContent=text}
+  else{d.className='b '+(role==='customer'||role==='me'?'me':role==='human'?'human':'bot');d.setAttribute('dir','auto');
+    d.innerHTML=(att?'<i>&#128206; '+esc(att.kind)+' </i>':'')+fmt(text||'');
+    if(tools&&tools.length){const t=document.createElement('div');t.className='tools';t.innerHTML=tools.map(x=>'<span>'+esc(x)+'</span>').join('');d.appendChild(t)}}
+  $('msgs').appendChild(d);$('msgs').scrollTop=1e9}
+async function loadWho(){const cs=await api('/api/dev/customers');
+  $('who').innerHTML=cs.map(c=>`<button data-p="${c.phone}" class="${c.phone===phone?'on':''}">${esc(c.name)}<small>${c.phone} &middot; ${c.language}</small></button>`).join('')+
+   `<button data-p="923009990000" class="${phone==='923009990000'?'on':''}">New customer<small>923009990000 &middot; not in the database</small></button>`}
+async function open_(p){phone=p;localStorage.setItem('phone',p);$('msgs').innerHTML='';$('sub').textContent=p;await loadWho();
+  for(const m of await api('/api/dev/messages?phone='+p))bubble(m.role,m.text,m.tools,m.attachment);refresh()}
+async function refresh(){try{const s=await api('/api/dev/state?phone='+phone);$('clock').textContent=s.now.replace('T',' ');
+  const d=s.draft;$('state').innerHTML=
+   '<dt>Bot</dt><dd class="'+(s.bot_active?'':'warn')+'">'+(s.bot_active?'answering':'silent: staff have this chat')+'</dd>'+
+   '<dt>Order in progress</dt><dd>'+(d?(esc(d.status)+'<br>'+d.lines.map(l=>esc(l.qty+' x '+l.name)).join('<br>')+(d.total?'<br><b>Rs '+d.total.toLocaleString()+'</b>':'')+(d.missing&&d.missing.length?'<br><span class="warn">needs: '+esc(d.missing.join('; '))+'</span>':'')):'none')+'</dd>'+
+   '<dt>Orders</dt><dd>'+(s.orders.length?s.orders.map(o=>esc(o.code+' '+o.status+' Rs '+o.total)).join('<br>'):'none')+'</dd>'}catch(e){}}
+async function send(text){
+  text=(text||'').trim();if(!text||busy)return;busy=true;$('t').value='';bubble('me',text);
+  try{const r=await post('/chat',{phone,text});
+    if(r.silent)bubble('note','A staff member has this chat: the bot stays silent.');
+    else bubble('bot',r.reply,r.tools.concat(r.provider?['via '+r.provider]:[]))}
+  catch(e){bubble('note','Error: '+e.message)}
+  busy=false;refresh()}
+$('f').onsubmit=e=>{e.preventDefault();send($('t').value)};
+$('who').onclick=e=>{const b=e.target.closest('button');if(b)open_(b.dataset.p)};
+$('other').onchange=e=>{const v=e.target.value.replace(/\D/g,'');if(v)open_(v)};
+$('img').onclick=async()=>{bubble('me','',[],{kind:'image'});const r=await post('/api/dev/media',{phone,kind:'image'});if(r.reply)bubble('bot',r.reply);else bubble('note','(staff have this chat: no automatic reply)');refresh()};
+$('reset').onclick=async()=>{await post('/api/dev/reset',{phone});open_(phone)};
+$('reseed').onclick=async()=>{if(confirm('Reload all demo data and forget every conversation?')){await post('/api/dev/reseed',{});open_(phone)}};
+open_(phone);setInterval(refresh,4000);
+</script>
+</body>
+</html>

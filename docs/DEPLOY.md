@@ -29,6 +29,7 @@ Use the `Dockerfile` and set the same environment variables; add a Postgres and 
 | `WA_VERIFY_TOKEN`, `WA_ACCESS_TOKEN`, `WA_PHONE_NUMBER_ID`, `WA_APP_SECRET` | WhatsApp Cloud API |
 | `ADMIN_TOKEN` | protects the team endpoints (payment confirm, order status); send as `x-admin-token` |
 | `SEED_ON_START=1` | load the demo data when the database is empty |
+| `ENV=production` | the webhook refuses to run without `WA_APP_SECRET` and the development endpoints (`/chat`, `/ui`, `/api/dev/*`) are switched off; `ENABLE_DEV_CHAT=1` re-enables them |
 | `RATE_LIMIT_PER_MIN` | messages per customer per minute (default 20) |
 
 ## Operating notes

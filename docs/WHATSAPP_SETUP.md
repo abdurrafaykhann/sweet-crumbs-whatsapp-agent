@@ -30,6 +30,7 @@ Send "Assalam o alaikum" from your verified phone to the test number. You should
 If nothing arrives: check `/health`, the host logs (look for `WhatsApp send failed`), that the token has not expired, and that your phone is in the recipient list.
 
 ## 5. Before showing it to a real shop
+- **Set `ENV=production`** and `WA_APP_SECRET`: the webhook then refuses unsigned calls and the development endpoints are off.
 - **Permanent token**: Business Settings > Users > **System Users** > create one, assign the app, generate a token with `whatsapp_business_messaging` and `whatsapp_business_management`. Replace the 24 h token.
 - **Real number**: add the shop's own number (it must not already be registered on the WhatsApp app) and complete business verification if Meta asks.
 - **Service window**: you can reply freely only within 24 hours of the customer's last message. Messages you start yourself (for example "your order is ready") need an approved message template.
