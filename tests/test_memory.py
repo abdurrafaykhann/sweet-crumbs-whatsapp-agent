@@ -1,8 +1,6 @@
 """Conversation memory survives a restart: a new checkpointer connection sees what the old one saved."""
 import os
 
-from langchain_core.messages import HumanMessage
-
 from app import agent, memory
 
 from .fakes import ScriptedModel, say

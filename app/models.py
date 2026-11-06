@@ -6,6 +6,10 @@ from sqlalchemy import JSON, Boolean, DateTime, Float, ForeignKey, Integer, Stri
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
+def utcnow() -> dt.datetime:
+    return dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -183,8 +187,8 @@ class Order(Base):
     notes: Mapped[str] = mapped_column(Text, default="")
     refund_amount: Mapped[int] = mapped_column(Integer, default=0)
     refund_due: Mapped[dt.date | None] = mapped_column(nullable=True)
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
     customer: Mapped[Customer] = relationship(back_populates="orders")
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order", cascade="all, delete-orphan")
 
@@ -210,8 +214,8 @@ class Conversation(Base):
     phone: Mapped[str] = mapped_column(String(20), primary_key=True)
     turn: Mapped[int] = mapped_column(Integer, default=0)
     escalated: Mapped[bool] = mapped_column(Boolean, default=False)       # bot stays silent while True (M4)
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
 
 
 class Draft(Base):
@@ -220,7 +224,7 @@ class Draft(Base):
     __tablename__ = "drafts"
     phone: Mapped[str] = mapped_column(String(20), primary_key=True)
     state: Mapped[dict] = mapped_column(JSON, default=dict)
-    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
 
 
 class Escalation(Base):
@@ -233,7 +237,7 @@ class Escalation(Base):
     priority: Mapped[str] = mapped_column(String(10), default="normal")      # normal | high
     status: Mapped[str] = mapped_column(String(10), default="open")          # open | resolved
     collected: Mapped[dict] = mapped_column(JSON, default=dict)               # draft/state at the moment of handoff
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
     resolved_at: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
 
 
@@ -245,7 +249,7 @@ class Message(Base):
     role: Mapped[str] = mapped_column(String(10))                            # customer | bot | human
     text: Mapped[str] = mapped_column(Text, default="")
     tools: Mapped[list] = mapped_column(JSON, default=list)
-    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
 
 
 class Counter(Base):

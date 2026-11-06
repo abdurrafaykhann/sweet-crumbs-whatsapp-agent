@@ -1,8 +1,6 @@
 """Tool tests. Many cases are the spec's own (section 13). Demo clock: Friday 6 November 2026, 2 pm."""
 import datetime as dt
 
-import pytest
-
 from app import database, tools
 from app import models as m
 
