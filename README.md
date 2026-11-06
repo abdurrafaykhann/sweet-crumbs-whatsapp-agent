@@ -25,7 +25,7 @@ python -m app.seed                      # load the demo data from the spec
 python -m app.run                       # seed if empty + start: web chat http://localhost:8000/ui, /health, /webhook
 python -m app.chat_cli --phone 923000000101 --debug     # chat as Ayesha in the terminal (/image, /reset, /state, /quit)
 docker compose up --build               # app + PostgreSQL + Redis, seeds the demo data on first start
-pytest                                  # 197 tests
+pytest                                  # 196 tests
 ```
 Demo customers (phone numbers and their orders) are in section 11 and 12 of the spec; set `DEMO_NOW=2026-11-06T14:00:00` for the spec's "today" (Friday 6 November 2026).
 
@@ -39,7 +39,7 @@ Demo customers (phone numbers and their orders) are in section 11 and 12 of the 
 
 ![Chat tester](docs/screenshots/chat-tester.jpg)
 - **Owner dashboard API (M6):** JWT login, orders with filters and search, status changes that message the customer in their language, advance verification by a person, inbox with take over / reply / hand back, escalation queue, menu and stock edits the bot sees at once, customers, analytics, live events ([docs/DASHBOARD.md](docs/DASHBOARD.md)).
-- **Tests:** 197, on SQLite and on PostgreSQL 17 (Redis paths on `fakeredis`). The model is replaced by a scripted fake in tests; live conversations on a real model are described in [docs/AGENT.md](docs/AGENT.md).
+- **Tests:** 196, on SQLite and on PostgreSQL 17 (Redis paths on `fakeredis`). The model is replaced by a scripted fake in tests; live conversations on a real model are described in [docs/AGENT.md](docs/AGENT.md).
 
 ## Not built yet
 Owner dashboard UI (M7), LLM-judged evals with rewordings (M8), final write-up (M9). No real WhatsApp number is connected, and nothing is deployed.

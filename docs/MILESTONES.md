@@ -10,7 +10,7 @@ Rebuild of the prototype against [`data/sweet-crumbs-bakery-demo.md`](../data/sw
 | M3 | LLM layer: Groq primary, Gemini fallback, backoff with jitter, provider and token logging, per-customer queue, never-no-reply fallback. See [LLM.md](LLM.md) | **done** (159 tests; failover verified live) |
 | M4 | Human handoff: summary for the owner, bot silent while escalated, take over / hand back, payment screenshots to a human. See [HANDOFF.md](HANDOFF.md) | **done** (170 tests) |
 | M5 | Webhook against the new core, terminal chat simulator, web chat page | **done** (177 tests; web chat verified in a browser) |
-| M6 | Dashboard backend: login, orders (filters, status + WhatsApp message), inbox, escalations, menu/stock, customers, analytics, live events. See [DASHBOARD.md](DASHBOARD.md) | **done** (197 tests, SQLite + PostgreSQL) |
+| M6 | Dashboard backend: login, orders (filters, status + WhatsApp message), inbox, escalations, menu/stock, customers, analytics, live events. See [DASHBOARD.md](DASHBOARD.md) | **done** (196 tests, SQLite + PostgreSQL) |
 | M7 | Dashboard UI: React + Vite + Tailwind, mobile friendly | todo |
 | M8 | Evals: 35 cases x 5 rewordings, LLM judge (different provider), caching, per-category runs, multi-turn and adversarial cases | todo |
 | M9 | README, Mermaid architecture, results table (Groq vs Gemini), "what I'd improve next" | todo |
