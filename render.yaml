@@ -13,7 +13,7 @@ services:
       - { key: WA_ACCESS_TOKEN, sync: false }
       - { key: WA_PHONE_NUMBER_ID, sync: false }
       - { key: WA_APP_SECRET, sync: false }
-      - { key: DEMO_MODE, value: "1" }
+      - { key: SEED_ON_START, value: "1" }
   - type: keyvalue
     name: wa-redis
     plan: free

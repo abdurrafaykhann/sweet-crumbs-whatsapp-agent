@@ -68,18 +68,27 @@ def allow(customer: str, limit: int = 20, window: int = 60) -> bool:
 
 @contextlib.contextmanager
 def customer_lock(customer: str, timeout: int = 120):
+    """One message at a time per customer. Redis: SET NX EX with an owner token, released by compare-and-delete (no Lua needed).
+    Yields True when the lock was acquired within `timeout` seconds, False otherwise."""
     r = client()
     if r:
-        lk = r.lock(f"wa:lock:{customer}", timeout=timeout, blocking_timeout=timeout)
-        got = lk.acquire()
+        import uuid
+        key, token = f"wa:lock:{customer}", uuid.uuid4().hex
+        deadline = time.time() + timeout
+        got = False
+        while not got and time.time() < deadline:
+            got = bool(r.set(key, token, nx=True, ex=timeout))
+            if not got:
+                time.sleep(0.05)
         try:
             yield got
         finally:
             if got:
                 try:
-                    lk.release()
+                    if r.get(key) == token:
+                        r.delete(key)
                 except Exception:
-                    pass
+                    pass  # the key expires on its own after `timeout` seconds
     else:
         with _mem_lock:
             lk = _locks.setdefault(customer, threading.Lock())

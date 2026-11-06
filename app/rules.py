@@ -81,6 +81,7 @@ class AreaMatch:
     fuzzy: bool = False
 
 
+_FILLER = {"karachi", "pakistan", "near", "opposite", "the", "and", "behind", "next", "number", "no", "in", "at", "of", "wala", "ke", "ka", "ki", "mein", "hai"}
 _ADDRESS_WORDS = {"block", "phase", "sector", "street", "lane", "flat", "house", "plot", "road", "gali", "apartment", "bungalow"}
 
 
@@ -126,7 +127,10 @@ def resolve_area(text: str, areas: list[dict], block_candidates: tuple = ()) -> 
         return AreaMatch("served" if best_area["zone_code"] else "not_served", best_area["name"], best_area["zone_code"],
                          best_area.get("note", ""), fuzzy=True)
     if any(tok in _ADDRESS_WORDS for tok in tokens):
-        return AreaMatch("unclear", candidates=tuple(block_candidates))
+        # only house/block/street words and numbers left -> the customer forgot the area ("Block 7"); a leftover place name
+        # we do not know ("Lahore") is "unknown" instead
+        leftovers = [t for t in tokens if t not in _ADDRESS_WORDS and t not in _FILLER and not t.isdigit() and len(t) > 2]
+        return AreaMatch("unknown") if leftovers else AreaMatch("unclear", candidates=tuple(block_candidates))
     return AreaMatch("unknown")
 
 

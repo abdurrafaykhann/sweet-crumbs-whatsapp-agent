@@ -1,4 +1,4 @@
-# Data model and business rules (M1)
+﻿# Data model and business rules (M1)
 
 All business data is loaded from [`data/sweet-crumbs-bakery-demo.md`](../data/sweet-crumbs-bakery-demo.md) by `python -m app.seed`.
 Business rules live in `app/rules.py` as pure Python functions: **the LLM never computes a fee, a zone, a notice period or a refund**; later milestones expose these functions to it as tools.
@@ -45,4 +45,5 @@ Stock is per variant. `reserve` is a single conditional `UPDATE ... WHERE stock 
 `app/clock.py`: `DEMO_NOW=2026-11-06T14:00:00` fixes "today" (the spec's Friday 6 November 2026). The rule functions never read the clock themselves; callers pass `now`.
 
 ## Tests
-`pytest tests` runs 63 tests. Set `TEST_DATABASE_URL=postgresql://...` to run them on PostgreSQL. The first-prototype tests (`test_infra.py`, `test_agent.py`) still run until M2 retires that code.
+`pytest` runs the whole suite (127 tests at M2). Set `TEST_DATABASE_URL=postgresql://...` to run it on PostgreSQL.
+

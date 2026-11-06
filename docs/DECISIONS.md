@@ -20,6 +20,18 @@ Source of truth for business data and bot behaviour: [`data/sweet-crumbs-bakery-
 - **Serving guide gaps** are resolved by rounding up (16-17 guests get a 3 lb cake); 4 lb is offered as a custom cake only.
 - **Seed-time spec checks:** wording changes, missing deal schedules, zone disagreements and demo-order arithmetic stop the seed with an explicit error.
 
+## Adjustments made during M2
+- **Order draft lives in the database, not in the chat.** `drafts` holds the structured order per phone; every model call re-injects a compact "ORDER IN PROGRESS" block, so trimming the chat history (last 12 messages) cannot lose anything.
+- **Confirm guard:** the draft carries `version`, `summary_version` and `summary_turn`. `confirm_order` needs a summary of the *current* version created in an *earlier* customer turn; any change creates a new version.
+- **`draft_order` vs `update_draft`:** `draft_order` starts a fresh draft only when the existing one is from an earlier customer message; within one message the two merge (LangGraph runs a step's tool calls concurrently), and draft changes are serialised per phone.
+- **`get_info(topic)`** searches the text of the fact topics, not just their names ("halal" finds the business profile). It was added because the spec's tool list had no business-info tool.
+- **One open escalation per customer:** later escalations add their details to the open one (the cancel tool escalates by itself and the model may also call `escalate_to_human`).
+- **Stock is released only if this system reserved it:** the seeded demo orders carry no reservation record, so cancelling them does not add stock that was never deducted.
+- **Assumption D8:** an ASAP pickup is ready in about 30 minutes (the spec gives no pickup time).
+- **Status on confirm:** `scheduled` when the slot is on a later day, `confirmed` for today, `awaiting_advance` when an advance is due.
+- **Custom/theme, wedding and bulk orders are never placed by the bot:** the draft reports `needs_human`, details are collected, then `escalate_to_human`.
+- The keyword offline bot, the keyword language detector and the old demo data are gone (D2, D3); the prototype remains in git history at `d2328d1`.
+
 ## Spec gaps found while reading (to resolve during the build)
 - No tool for business info (hours, branches, deals, policies, allergens, storage). Plan: add `get_info(topic)` so the prompt stays short.
 - Serving guide has a hole between 15 and 18 guests; the "15 to 20 people, take 3 lb" answer conflicts with "3 lb serves 18 to 22".

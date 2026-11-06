@@ -1,4 +1,4 @@
-# One command: docker compose up --build   ->  http://localhost:8000/demo
+# One command: docker compose up --build   (seeds the demo data on first start)  ->  http://localhost:8000/health
 services:
   app:
     build: .
@@ -7,7 +7,7 @@ services:
     environment:
       DATABASE_URL: postgresql://agent:agent@db:5432/agent
       REDIS_URL: redis://redis:6379/0
-      DEMO_MODE: "1"
+      SEED_ON_START: "1"
     depends_on:
       db: { condition: service_healthy }
       redis: { condition: service_started }

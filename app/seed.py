@@ -314,13 +314,29 @@ def load_menu(s: Session, md: str) -> tuple[int, int]:
 
 
 # ----------------------------------------------------------------------------- deals
-DEAL_RULES = {  # structured schedule for each deal; the prose in the md stays as text for the bot
-    "Birthday Bundle": dict(days=None, start=None, end=None, channels=["delivery", "pickup"], min_qty=1, valid_until=dt.date(2026, 12, 31)),
-    "Tea Time Deal": dict(days=["Mon", "Tue", "Wed", "Thu"], start=16 * 60, end=19 * 60, channels=["dine_in", "takeaway"], min_qty=1),
-    "Sunday Breakfast Box": dict(days=["Sun"], start=9 * 60, end=13 * 60, channels=["delivery", "pickup"], min_qty=1),
-    "Office Hi-Tea Box": dict(days=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], start=None, end=None, channels=["delivery"], min_qty=15),
-    "Wednesday Donut Day": dict(days=["Wed"], start=None, end=None, channels=["delivery", "pickup", "dine_in", "takeaway"], min_qty=1),
+def _c(sku, qty=1, variant="each", swap=None):
+    return {"sku": sku, "variant": variant, "qty": qty, "swap": swap or []}
+
+
+DEAL_RULES = {  # structured schedule and components for each deal; the prose in the md stays as text for the bot
+    "Birthday Bundle": dict(days=None, start=None, end=None, channels=["delivery", "pickup"], min_qty=1, valid_until=dt.date(2026, 12, 31),
+                            kind="bundle", notice=0, components=[_c("CK-CHOC", 1, "2 lb", ["CK-BLFR", "CK-PINE"]), _c("CC-BOX6"), _c("BR-CANDLE")]),
+    "Tea Time Deal": dict(days=["Mon", "Tue", "Wed", "Thu"], start=16 * 60, end=19 * 60, channels=["dine_in", "takeaway"], min_qty=1,
+                          kind="bundle", notice=0, components=[_c("SV-CPAT", 2), _c("BS-RUSK"), _c("BV-CHAI", 2)]),
+    "Sunday Breakfast Box": dict(days=["Sun"], start=9 * 60, end=13 * 60, channels=["delivery", "pickup"], min_qty=1,
+                                 kind="bundle", notice=0, components=[_c("BR-CROI", 4), _c("BR-MILK-L"), _c("BR-BRWN")]),
+    "Office Hi-Tea Box": dict(days=["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], start=None, end=None, channels=["delivery"], min_qty=15,
+                              kind="bundle", notice=24, components=[_c("SV-CPAT"), _c("SV-SAMO"), _c("DS-BROW"), _c("BV-WATR")]),
+    "Wednesday Donut Day": dict(days=["Wed"], start=None, end=None, channels=["delivery", "pickup", "dine_in", "takeaway"], min_qty=1,
+                                kind="buy_get", notice=0, components=[{"skus": ["DS-DONG", "DS-DONN"], "buy": 4, "free": 2}]),
 }
+
+
+def _variant_price(s: Session, sku: str, label: str) -> int:
+    v = s.query(m.Variant).join(m.Product).filter(m.Product.sku == sku, m.Variant.label == label).one_or_none()
+    if v is None:
+        raise SeedError(f"deal component {sku} / {label} is not on the menu")
+    return v.price
 
 
 def load_deals(s: Session, md: str) -> int:
@@ -330,9 +346,15 @@ def load_deals(s: Session, md: str) -> int:
         rule = DEAL_RULES.get(name)
         if rule is None:
             raise SeedError(f"deal {name!r} in the spec has no schedule rule in app/seed.py DEAL_RULES")
-        s.add(m.Deal(name=name, price=num(r["Price"]), usual_price=num(r["Usual price"]), includes=r["Includes"], when_text=r["When"],
+        price, usual = num(r["Price"]), num(r["Usual price"])
+        if rule["kind"] == "bundle":  # the spec's own arithmetic: components must add up to the stated usual price
+            total = sum(_variant_price(s, c["sku"], c["variant"]) * c["qty"] for c in rule["components"])
+            if total != usual:
+                raise SeedError(f"{name}: components add up to Rs {total} but the spec says the usual price is Rs {usual}")
+        s.add(m.Deal(name=name, price=price, usual_price=usual, includes=r["Includes"], when_text=r["When"],
                      where_text=r["Where"], days=rule["days"], start_min=rule["start"], end_min=rule["end"], channels=rule["channels"],
-                     min_qty=rule["min_qty"], valid_until=rule.get("valid_until")))
+                     min_qty=rule["min_qty"], valid_until=rule.get("valid_until"), kind=rule["kind"], components=rule["components"],
+                     notice_hours=rule["notice"]))
     missing = set(DEAL_RULES) - {re.sub(r"\s*\(.*\)$", "", r["Deal"]) for r in rows}
     if missing:
         raise SeedError(f"DEAL_RULES lists deals that are not in the spec: {missing}")
@@ -506,6 +528,7 @@ def seed_database(path: pathlib.Path = MD_PATH, reset: bool = True) -> dict:
         report["branches"] = load_branches(s, md)
         report["zones"], report["areas"] = load_zones_and_areas(s, md)
         report["products"], report["variants"] = load_menu(s, md)
+        s.flush()
         report["deals"] = load_deals(s, md)
         s.flush()
         report["customers"] = load_customers(s, md)
@@ -515,7 +538,20 @@ def seed_database(path: pathlib.Path = MD_PATH, reset: bool = True) -> dict:
         last = max(int(o.code.split("-")[1]) for o in s.query(m.Order).all())
         s.add(m.Setting(key="next_order_number", value=last + 1))
         report["info_topics"] = load_info(s, md)
+        s.add(m.Counter(name="order", value=last + 1))  # atomic source of the next order code (SC-10432...)
+        pay = {r["Method"]: r["Details"] for r in tables(section_body(md, "4. Payment"))[0]}
+        s.add(m.Setting(key="payment_methods", value=pay))
     return report
+
+
+def seed_if_empty() -> bool:
+    """Load the demo data only when the database has none (used by SEED_ON_START=1 so one command seeds and starts)."""
+    m.Base.metadata.create_all(get_engine())
+    with session_scope() as s:
+        if s.query(m.Product).count() > 0:
+            return False
+    seed_database(reset=False)
+    return True
 
 
 def main():

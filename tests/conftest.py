@@ -32,3 +32,10 @@ def areas(seeded):
 
 def variant(s, sku, label="each"):
     return s.query(m.Variant).join(m.Product).filter(m.Product.sku == sku, m.Variant.label == label).one()
+
+
+@pytest.fixture()
+def db(seeded):
+    """A freshly seeded database for tests that change data (orders, stock, drafts)."""
+    seed.seed_database()
+    yield

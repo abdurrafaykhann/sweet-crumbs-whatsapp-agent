@@ -4,7 +4,7 @@ You do these steps in your own Meta account; nothing here can be done for you. T
 
 ## 1. Create the app
 1. Go to developers.facebook.com, log in, **My Apps > Create App** > use case **Other / Business** > app type **Business**.
-2. On the app dashboard add the **WhatsApp** product. Meta creates a free **test phone number** and a test business account.
+2. On the Meta app page add the **WhatsApp** product. Meta creates a free **test phone number** and a test business account.
 3. Open **WhatsApp > API Setup**. Note down:
    - **Phone number ID** (not the phone number itself) -> `WA_PHONE_NUMBER_ID`
    - **Temporary access token** (valid 24 h; fine for the first test) -> `WA_ACCESS_TOKEN`
@@ -25,7 +25,7 @@ Use the printed `https://...` address. Meta requires HTTPS.
 3. Under **Webhook fields**, **Subscribe** to `messages`.
 
 ## 4. Test
-Send "Assalam o alaikum" from your verified phone to the test number. You should get Aisha's reply within a few seconds, and the conversation appears on the dashboard at `/`.
+Send "Assalam o alaikum" from your verified phone to the test number. You should get the assistant's reply within a few seconds (conversation history is stored in the database; the owner dashboard arrives in M6/M7).
 
 If nothing arrives: check `/health`, the host logs (look for `WhatsApp send failed`), that the token has not expired, and that your phone is in the recipient list.
 

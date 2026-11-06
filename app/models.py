@@ -123,6 +123,9 @@ class Deal(Base):
     channels: Mapped[list] = mapped_column(JSON, default=list)            # delivery | pickup | dine_in | takeaway
     min_qty: Mapped[int] = mapped_column(Integer, default=1)
     valid_until: Mapped[dt.date | None] = mapped_column(nullable=True)
+    kind: Mapped[str] = mapped_column(String(10), default="bundle")        # bundle | buy_get
+    components: Mapped[list] = mapped_column(JSON, default=list)           # bundle: [{sku, variant, qty, swap}]; buy_get: [{skus, buy, free}]
+    notice_hours: Mapped[int] = mapped_column(Integer, default=0)
 
 
 # ----------------------------------------------------------------------------- customers and orders
@@ -198,3 +201,54 @@ class OrderItem(Base):
     line_total: Mapped[int] = mapped_column(Integer)
     options: Mapped[dict] = mapped_column(JSON, default=dict)               # eggless, message...
     order: Mapped[Order] = relationship(back_populates="items")
+
+
+# ----------------------------------------------------------------------------- conversations, drafts, handoff (M2)
+class Conversation(Base):
+    """One row per WhatsApp number. `turn` counts inbound customer messages: the confirm guard compares turns."""
+    __tablename__ = "conversations"
+    phone: Mapped[str] = mapped_column(String(20), primary_key=True)
+    turn: Mapped[int] = mapped_column(Integer, default=0)
+    escalated: Mapped[bool] = mapped_column(Boolean, default=False)       # bot stays silent while True (M4)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+
+
+class Draft(Base):
+    """The order in progress for a phone number. Lives in the database, not in the chat history, so trimming the
+    history can never lose it. `state` is validated and priced by app.pricing."""
+    __tablename__ = "drafts"
+    phone: Mapped[str] = mapped_column(String(20), primary_key=True)
+    state: Mapped[dict] = mapped_column(JSON, default=dict)
+    updated_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+
+
+class Escalation(Base):
+    __tablename__ = "escalations"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    phone: Mapped[str] = mapped_column(String(20), index=True)
+    order_code: Mapped[str] = mapped_column(String(12), default="")
+    reason: Mapped[str] = mapped_column(String(120))
+    summary: Mapped[str] = mapped_column(Text, default="")
+    priority: Mapped[str] = mapped_column(String(10), default="normal")      # normal | high
+    status: Mapped[str] = mapped_column(String(10), default="open")          # open | resolved
+    collected: Mapped[dict] = mapped_column(JSON, default=dict)               # draft/state at the moment of handoff
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+    resolved_at: Mapped[dt.datetime | None] = mapped_column(DateTime, nullable=True)
+
+
+class Message(Base):
+    """Conversation log for the dashboard inbox (customer, bot, human) incl. which tools the bot used."""
+    __tablename__ = "messages"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    phone: Mapped[str] = mapped_column(String(20), index=True)
+    role: Mapped[str] = mapped_column(String(10))                            # customer | bot | human
+    text: Mapped[str] = mapped_column(Text, default="")
+    tools: Mapped[list] = mapped_column(JSON, default=list)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=dt.datetime.utcnow)
+
+
+class Counter(Base):
+    __tablename__ = "counters"
+    name: Mapped[str] = mapped_column(String(30), primary_key=True)
+    value: Mapped[int] = mapped_column(Integer)

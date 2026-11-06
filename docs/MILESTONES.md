@@ -6,7 +6,7 @@ Rebuild of the prototype against [`data/sweet-crumbs-bakery-demo.md`](../data/sw
 |---|---|---|
 | M0 | Repo setup: git baseline, spec in `data/`, decisions, dependency spike, clean `.venv` | **done** |
 | M1 | Data: SQLAlchemy models, seed script from the md (menu, zones, branches, deals, 8 customers, 9 orders), Python business rules + unit tests (zones, fees, minimum, notice periods, advance, Jummah, same-day cutoff), atomic inventory. See [DATA_AND_RULES.md](DATA_AND_RULES.md) | **done** (63 tests, SQLite + PostgreSQL) |
-| M2 | Tools + LangGraph agent core: spec tools, per-phone memory, structured order state, short prompt, `get_info`, confirm-in-later-turn guard, keyword bot removed | todo |
+| M2 | Tools + LangGraph agent core: spec tools, per-phone memory, structured order state, short prompt, `get_info`, confirm-in-later-turn guard, keyword bot removed. See [AGENT.md](AGENT.md) | **done** (127 tests, SQLite + PostgreSQL; live-tested on Gemini) |
 | M3 | LLM layer: Groq primary, Gemini fallback, backoff with jitter, provider and token logging, per-customer queue, never-no-reply fallback | todo |
 | M4 | Human handoff: summary for the owner, bot silent while escalated, take over / hand back, payment screenshots to a human | todo |
 | M5 | Webhook against the new core, terminal chat simulator, web chat page | todo |
