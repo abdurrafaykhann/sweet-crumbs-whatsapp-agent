@@ -79,15 +79,17 @@ def run_variant(case: Case, style: str, turns: list[str], n: int, bot_graph, jud
         judged = True
     except Exception as exc:  # judge quota or bad JSON: the hard checks still count, the judge result is missing
         verdict, judged = {"pass": None, "reason": f"judge failed: {str(exc)[:100]}"}, False
-    rec.update(status="ok", hard_failures=fails, judge=verdict, judged=judged, passed=(not fails) and (verdict["pass"] is not False and judged))
+    rec.update(status="ok" if judged else "unjudged", hard_failures=fails, judge=verdict, judged=judged, passed=judged and not fails and bool(verdict["pass"]))
     return rec
 
 
 def summarise(records: list[dict]) -> dict:
     ok = [r for r in records if r["status"] == "ok"]
+    unjudged = [r for r in records if r["status"] == "unjudged"]
     by = lambda f: {k: (sum(r["passed"] for r in v), len(v)) for k, v in sorted(_group(ok, f).items())}
     return {
-        "variants_run": len(records), "errors": len(records) - len(ok), "passed": sum(r["passed"] for r in ok), "counted": len(ok),
+        "variants_run": len(records), "errors": len(records) - len(ok) - len(unjudged), "unjudged": len(unjudged),
+        "unjudged_hard_pass": sum(not r["hard_failures"] for r in unjudged), "passed": sum(r["passed"] for r in ok), "counted": len(ok),
         "hard_check_pass": sum(not r["hard_failures"] for r in ok), "judge_pass": sum(bool(r["judge"].get("pass")) for r in ok),
         "by_category": by(lambda r: r["category"]), "by_style": by(lambda r: r["style"]),
         "avg_seconds": round(sum(r["seconds"] for r in ok) / len(ok), 1) if ok else 0, "avg_tokens": round(sum(r["tokens"] for r in ok) / len(ok)) if ok else 0,
@@ -104,7 +106,7 @@ def _group(items, f):
 def markdown(summary: dict, records: list[dict], title: str) -> str:
     rate = lambda a, b: f"{a}/{b} ({round(100 * a / b)}%)" if b else "n/a"
     lines = [f"# {title}", "",
-             f"Counted runs: {summary['counted']} (not counted because the model was unavailable: {summary['errors']}). "
+             f"Counted runs: {summary['counted']} (not counted: {summary['errors']} where the bot's model was unavailable, {summary['unjudged']} where the judge's quota ran out; of those, {summary['unjudged_hard_pass']} passed the deterministic checks). "
              f"**Passed {rate(summary['passed'], summary['counted'])}**; deterministic checks {rate(summary['hard_check_pass'], summary['counted'])}; "
              f"LLM judge {rate(summary['judge_pass'], summary['counted'])}. Average {summary['avg_seconds']} s and {summary['avg_tokens']} tokens per conversation.", "",
              "| Category | Passed |", "|---|---|", *[f"| {k} | {rate(*v)} |" for k, v in summary["by_category"].items()], "",
