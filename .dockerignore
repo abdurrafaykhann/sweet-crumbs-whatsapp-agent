@@ -1,0 +1,5 @@
+.env
+*.db
+__pycache__
+evals/*.json
+evals/*.log

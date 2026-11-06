@@ -1,0 +1,19 @@
+# secrets
+.env
+.env.*
+!.env.example
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+# local data and run output
+*.db
+*.sqlite3
+preview*.log
+evals/*.log
+evals/*_results.json
+evals/.cache/
+# node / dashboard build
+node_modules/
+dist/

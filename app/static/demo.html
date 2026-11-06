@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sweet Crumbs · WhatsApp Agent Demo</title>
+<style>
+:root{--bg:#e9e4da;--ink:#111b21;--mut:#667781;--hdr:#075e54;--out:#d9fdd3;--in:#fff;--panel:#fff;--line:#e2ddd2;--acc:#128c7e;--warn:#b4530f}
+@media (prefers-color-scheme:dark){:root{--bg:#0b141a;--ink:#e9edef;--mut:#8696a0;--hdr:#1f2c34;--out:#005c4b;--in:#202c33;--panel:#111b21;--line:#222d34;--acc:#25d366;--warn:#f2a464}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh;display:grid;place-items:center;padding:16px}
+.wrap{display:grid;grid-template-columns:minmax(320px,400px) minmax(300px,420px);gap:24px;align-items:start;width:100%;max-width:880px;justify-content:center}
+@media(max-width:820px){.wrap{grid-template-columns:1fr;max-width:420px}}
+.phone{background:var(--panel);border-radius:22px;overflow:hidden;box-shadow:0 10px 40px #0003;display:flex;flex-direction:column;height:min(720px,92vh);border:1px solid var(--line)}
+.top{background:var(--hdr);color:#fff;padding:10px 14px;display:flex;gap:12px;align-items:center}
+.av{width:40px;height:40px;border-radius:50%;background:#fff3;display:grid;place-items:center;font-size:20px}
+.top b{display:block;font-size:16px}.top small{opacity:.8;font-size:12px}
+.msgs{flex:1;overflow:auto;padding:14px 12px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.b{max-width:80%;padding:7px 10px 4px;border-radius:10px;box-shadow:0 1px 1px #0002;white-space:pre-wrap;word-wrap:break-word}
+.b.me{align-self:flex-end;background:var(--out);border-top-right-radius:2px}
+.b.bot{align-self:flex-start;background:var(--in);border-top-left-radius:2px}
+.b i{display:block;text-align:right;font-style:normal;font-size:11px;color:var(--mut);margin-top:2px}
+.typing{align-self:flex-start;background:var(--in);padding:9px 12px;border-radius:10px;display:none;gap:4px}
+.typing span{width:7px;height:7px;border-radius:50%;background:var(--mut);animation:bl 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bl{0%,60%,100%{opacity:.3}30%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.typing span{animation:none}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px 0;background:var(--panel)}
+.chips button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:14px;padding:5px 10px;font-size:12.5px;cursor:pointer}
+form{display:flex;gap:8px;padding:10px;background:var(--panel)}
+input{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:20px;padding:10px 14px;font:inherit}
+#att{background:var(--bg)!important;color:var(--ink)!important;border:1px solid var(--line)!important}
+.pb{margin-top:4px;border:0;background:var(--acc);color:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px}
+form button{border:0;background:var(--acc);color:#fff;border-radius:50%;width:42px;height:42px;font-size:18px;cursor:pointer}
+input:focus-visible,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.side{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:14px}
+.side h2{margin:0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.k{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.k div{background:var(--bg);border-radius:8px;padding:8px}.k b{display:block;font-size:20px;font-variant-numeric:tabular-nums}.k span{font-size:11px;color:var(--mut)}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:4px 5px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--mut);font-weight:500}
+.empty{color:var(--mut);font-size:13px}.warn{color:var(--warn)}
+.bar{display:flex;justify-content:space-between;align-items:center}
+.bar button{border:1px solid var(--line);background:transparent;color:var(--mut);border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="phone" aria-label="Chat with Sweet Crumbs Bakery">
+    <div class="top"><div class="av">🧁</div><div><b>Sweet Crumbs Bakery</b><small id="st">online</small></div></div>
+    <div class="msgs" id="msgs" aria-live="polite"></div>
+    <div class="chips" id="chips"></div>
+    <form id="f"><button type="button" id="att" title="Send a payment screenshot" aria-label="Attach payment screenshot">📎</button><input id="t" placeholder="Type a message" autocomplete="off" aria-label="Message"><button aria-label="Send">➤</button></form>
+  </div>
+  <aside class="side">
+    <div class="bar"><h2>Team console (what your staff sees)</h2><button id="reset" title="Wipe demo data (needs DEMO_MODE=1)">Reset demo</button></div>
+    <div class="k" id="k"></div>
+    <div><h2>Orders</h2><table id="o"></table></div>
+    <div><h2>Stock</h2><table id="s"></table></div>
+    <div><h2>Needs a human</h2><table id="e"></table></div>
+  </aside>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let me="demo-"+Math.random().toString(36).slice(2,8);
+try{me=localStorage.getItem("demo-id")||me;localStorage.setItem("demo-id",me)}catch(e){}
+const hhmm=()=>new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+function bubble(text,who){const d=document.createElement("div");d.className="b "+who;d.setAttribute("dir","auto");d.innerHTML=esc(text)+"<i>"+hhmm()+(who==="me"?" ✓✓":"")+"</i>";$("msgs").insertBefore(d,$("typing"));$("msgs").scrollTop=1e9}
+const ty=document.createElement("div");ty.id="typing";ty.className="typing";ty.innerHTML="<span></span><span></span><span></span>";$("msgs").appendChild(ty);
+const CHIPS=["Hi! Where are you located?","It's my sister's birthday, I need a cake","What's in the red velvet cake?","I want a 3 lb chocolate fudge cake for tomorrow 7pm, delivery to Gulshan","Where is my order?","mujhe refund chahiye"];
+$("chips").innerHTML=CHIPS.map(c=>`<button type="button">${esc(c)}</button>`).join("");
+$("chips").onclick=e=>{if(e.target.tagName==="BUTTON"){send(e.target.textContent)}};
+let busy=false;
+async function send(text){
+  text=(text||"").trim();if(!text||busy)return;busy=true;$("t").value="";bubble(text,"me");
+  ty.style.display="flex";$("st").textContent="typing…";$("msgs").scrollTop=1e9;
+  try{
+    const r=await fetch("/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer:me,text})});
+    if(!r.ok)throw new Error(r.status);const j=await r.json();
+    await new Promise(r=>setTimeout(r,350));bubble(j.reply||"…","bot");
+  }catch(e){bubble("Sorry, I could not reach the shop right now. Please try again.","bot")}
+  ty.style.display="none";$("st").textContent="online";busy=false;load();$("t").focus();
+}
+async function sendProof(){
+  if(busy)return;busy=true;bubble("📷 payment-screenshot.jpg","me");ty.style.display="flex";$("msgs").scrollTop=1e9;
+  try{const r=await fetch("/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({customer:me,media:"image"})});
+    const j=await r.json();await new Promise(r=>setTimeout(r,350));bubble(j.reply||"…","bot")}catch(e){bubble("Sorry, something went wrong.","bot")}
+  ty.style.display="none";busy=false;load()}
+$("att").onclick=sendProof;
+async function payAct(id,action){await fetch("/api/orders/"+id+"/payment",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action})});load();pollTeam()}
+let lastTeam=0;
+async function pollTeam(){try{const rows=await (await fetch("/api/team-messages?customer="+encodeURIComponent(me)+"&after="+lastTeam)).json();
+  for(const m of rows){lastTeam=Math.max(lastTeam,m.id);bubble(m.text,"bot")}}catch(e){}}
+$("f").onsubmit=e=>{e.preventDefault();send($("t").value)};
+async function load(){
+  try{const d=await (await fetch("/api/stats")).json();
+  $("k").innerHTML=[["Orders",d.orders],["Revenue","Rs "+d.revenue],["Handoffs",d.escalations]].map(x=>`<div><b>${esc(x[1])}</b><span>${x[0]}</span></div>`).join("");
+  $("o").innerHTML=d.recent_orders.length?"<tr><th>#<th>Items<th>Status<th>Rs</tr>"+d.recent_orders.slice(0,5).map(r=>`<tr><td>${r.id}<td>${esc(r.name)}<td>${esc(r.status)}${r.status==='payment_submitted'?`<br><button class="pb" onclick="payAct(${r.id},'confirm')">✔ Confirm payment</button>`:''}<td>${r.total}</tr>`).join(""):'<tr><td class="empty">No orders yet</tr>';
+  $("s").innerHTML=d.stock.map(r=>`<tr><td>${esc(r.name)}<td class="${r.stock<=3?"warn":""}">${r.stock}<td>Rs ${r.price}</tr>`).join("");
+  $("e").innerHTML=d.open_escalations.length?d.open_escalations.slice(0,4).map(r=>`<tr><td>${esc(r.reason.slice(0,60))}</tr>`).join(""):'<tr><td class="empty">None</tr>';
+  }catch(e){}
+}
+$("reset").onclick=async()=>{const r=await fetch("/demo/reset",{method:"POST"});if(r.ok){$("msgs").querySelectorAll(".b").forEach(n=>n.remove());load()}else alert("Reset needs the server to run with DEMO_MODE=1")};
+bubble("Assalam o Alaikum! 👋 Sweet Crumbs Bakery mein khush aamdeed. Kya main aapki madad kar sakti hoon?","bot");
+load();pollTeam();setInterval(load,2500);setInterval(pollTeam,2000);
+</script>
+</body>
+</html>
