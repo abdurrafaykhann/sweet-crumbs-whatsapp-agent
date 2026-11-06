@@ -37,24 +37,48 @@ def phone_for(case: Case, n: int) -> str:
     return f"92300990{n:04d}" if case.who == "new" else f"923000000{case.who}"
 
 
-class Paced:
-    """Keeps a minimum gap between model calls so a free tier's requests-per-minute limit is respected."""
+class QuotaExhausted(RuntimeError):
+    """The provider asks for a wait longer than we are willing to sit through (usually a daily quota). Resume later: the cache keeps progress."""
 
-    def __init__(self, inner, gap: float):
-        self.inner, self.gap, self.last = inner, gap, 0.0
+
+class Paced:
+    """Keeps a minimum gap between model calls (free-tier requests per minute) and, when every provider says
+    "try again in N seconds", sleeps exactly that long instead of failing, as long as N is within `max_wait`."""
+
+    def __init__(self, inner, gap: float, max_wait: float = 900.0, sleep=time.sleep, clock=time.time):
+        self.inner, self.gap, self.max_wait, self.sleep, self.clock, self.last = inner, gap, max_wait, sleep, clock, 0.0
 
     def bind_tools(self, tools):
         self.inner.bind_tools(tools)
         return self
 
     def invoke(self, messages, config=None):
-        wait = self.last + self.gap - time.time()
-        if wait > 0:
-            time.sleep(wait)
-        try:
-            return self.inner.invoke(messages, config)
-        finally:
-            self.last = time.time()
+        from app.llm import LLMUnavailable
+        while True:
+            wait = self.last + self.gap - self.clock()
+            if wait > 0:
+                self.sleep(wait)
+            try:
+                return self.inner.invoke(messages, config)
+            except LLMUnavailable as e:
+                pause = (e.retry_after or 60) + 1
+                if pause > self.max_wait:
+                    raise QuotaExhausted(f"provider asks for {int(pause)} s, more than --max-wait {int(self.max_wait)} s") from e
+                print(f"  rate limited: waiting {int(pause)} s as the provider asked", flush=True)
+                self.sleep(pause)
+            finally:
+                self.last = self.clock()
+
+
+SMALL_JUDGES = {"groq": "groq:llama-3.1-8b-instant", "google_genai": "google_genai:gemini-flash-lite-latest"}
+
+
+def default_judge(bot: str | None) -> str:
+    """The judge is a different provider from the bot, and a small model: the big model's quota is kept for the bot."""
+    if os.environ.get("LLM_JUDGE"):
+        return os.environ["LLM_JUDGE"]
+    bot_provider = (bot or os.environ.get("LLM_PRIMARY") or "groq:").partition(":")[0]
+    return SMALL_JUDGES["google_genai"] if bot_provider == "groq" else SMALL_JUDGES["groq"]
 
 
 def variants_of(case: Case, rewordings: int) -> list[tuple[str, list[str]]]:
@@ -128,7 +152,9 @@ def main() -> None:
     ap.add_argument("--case", action="append")
     ap.add_argument("--rewordings", type=int, default=0, help="how many rewordings per case to run besides the original (up to 6)")
     ap.add_argument("--model", help="bot model, e.g. groq:openai/gpt-oss-120b (default: LLM_PRIMARY with LLM_FALLBACK)")
-    ap.add_argument("--judge", default=os.environ.get("LLM_JUDGE", "google_genai:gemini-flash-lite-latest"))
+    ap.add_argument("--judge", help="judge model; default: a small model from the other provider (each model has its own quota)")
+    ap.add_argument("--max-wait", type=float, default=900.0, help="longest pause (seconds) to sit through when a provider says try again in N seconds")
+    ap.add_argument("--stop-after-errors", type=int, default=3, help="stop when this many runs in a row fail because a model is unavailable; re-run later to resume from the cache")
     ap.add_argument("--delay", type=float, default=0.0, help="minimum seconds between bot model calls")
     ap.add_argument("--judge-delay", type=float, default=0.0)
     ap.add_argument("--force", action="store_true", help="ignore cached passes")
@@ -149,10 +175,14 @@ def main() -> None:
     bot_name = args.model or f"{os.environ.get('LLM_PRIMARY', 'default')}+fallback"
     STORE.mkdir(parents=True, exist_ok=True)
     RESULTS.mkdir(exist_ok=True)
-    bot_model = Paced(get_model(args.model), args.delay)
-    judge_model = Paced(get_model(args.judge), args.judge_delay)
+    args.judge = args.judge or default_judge(args.model)
+    bot_model = Paced(get_model(args.model), args.delay, args.max_wait)
+    judge_model = Paced(get_model(args.judge), args.judge_delay, args.max_wait)
+    streak = 0
     records, n = [], 0
     for case in cases:
+        if streak >= args.stop_after_errors:
+            break
         for style, turns in variants_of(case, args.rewordings):
             n += 1
             f = STORE / f"{key_of(case, style, turns, bot_name, args.judge)}.json"
@@ -165,10 +195,15 @@ def main() -> None:
             graph = agent.build_graph(bot_model, InMemorySaver())
             rec = run_variant(case, style, turns, n, graph, judge_model, bot_name, args.judge)
             records.append(rec)
+            streak = streak + 1 if rec["status"] == "error" else 0
+            if streak >= args.stop_after_errors:
+                break
             if rec["status"] == "ok":
                 f.write_text(json.dumps(rec, ensure_ascii=False, indent=1), encoding="utf-8")
             mark = "PASS" if rec["passed"] else ("ERROR" if rec["status"] == "error" else "FAIL")
             print(f"case {case.id:>3} {style:<9} {mark}  {rec['seconds']}s  {'; '.join(rec['hard_failures'])[:90]} {rec['judge'].get('reason', '')[:70] if not rec['passed'] else ''}", flush=True)
+    if streak >= args.stop_after_errors:
+        print(f"stopped: {streak} runs in a row failed because a model is unavailable (quota). Re-run the same command later; passed runs are cached.")
     summary = summarise(records)
     out = RESULTS / f"{args.tag}"
     out.with_suffix(".json").write_text(json.dumps({"bot": bot_name, "judge": args.judge, "summary": summary, "records": records}, ensure_ascii=False, indent=1), encoding="utf-8")

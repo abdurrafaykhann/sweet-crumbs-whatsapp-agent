@@ -58,9 +58,11 @@ Demo customers (phone numbers and their orders) are in section 11 and 12 of the 
 ```bash
 python -m evals.runner --list
 python -m evals.runner --category delivery --rewordings 2
-python -m evals.runner --rewordings 1 --model google_genai:gemini-flash-lite-latest --judge groq:openai/gpt-oss-120b --delay 4 --tag gemini
-python -m evals.runner --rewordings 1 --model groq:openai/gpt-oss-120b --judge google_genai:gemini-flash-lite-latest --delay 3 --tag groq
+python -m evals.runner --rewordings 1 --model google_genai:gemini-flash-lite-latest --delay 4 --tag gemini
+python -m evals.runner --rewordings 1 --model groq:openai/gpt-oss-120b --delay 3 --tag groq
 ```
+The judge defaults to a small model from the other provider (Groq's `llama-3.1-8b-instant` when Gemini is the bot, Gemini flash-lite when Groq is the bot), because every model has its own free quota and the big one is kept for the bot. When a provider says "try again in N seconds" the runner sleeps exactly that long and carries on (`--max-wait`, default 15 minutes); when the wait is daily-quota sized it stops after 3 failed runs in a row and prints "re-run later". Passed runs are cached, so re-running the same command resumes where it stopped. Plan: run the Gemini half after Gemini's daily reset (1 pm Karachi time) and the Groq half in batches through the day with `--category`.
+
 Passed runs are cached, so a re-run only repeats failures; runs where a provider's quota ran out are reported as errors or "unjudged", never as failures. Reports are written to `evals/results/<tag>.md` and `.json`.
 
 **Results: not available yet.** On the day I ran them, both free tiers ran out of quota partway through (Groq's daily tokens, then Gemini's daily requests), so no complete pass rate exists and I will not invent one. Two live smoke cases passed on both providers (price lookup; manager request needed a language fix noted by the judge). The harness itself is covered by offline tests. **Partial run (Gemini flash-lite as the bot, Groq as the judge; `evals/results/gemini-flash-lite.*`):** 84 conversations were attempted. 25 were lost because Gemini's quota ran out, and in the other 59 the Groq judge was out of quota for most of them, so no judge verdict exists for them. The report's "passed 7/59" counts those missing verdicts as failures (that run used the first version of the runner, which I have since fixed to report them as "unjudged"), so ignore that number. What the run does show: **58 of the 59 conversations passed every deterministic check** (prices, delivery fees, tool use, no unconfirmed orders, no discounts, no leaked data). Those checks cover facts and state only, not tone or language, which is what the judge is for.

@@ -62,3 +62,42 @@ def test_scripted_run_end_to_end_and_summary(tmp_path, monkeypatch):
     s = runner.summarise([rec])
     assert s["passed"] == 1 and s["by_category"]["info"] == (1, 1)
     assert "Passed 1/1" in runner.markdown(s, [rec], "t")
+
+
+def test_paced_waits_for_the_providers_retry_hint_then_resumes():
+    from app.llm import LLMUnavailable
+    slept = []
+
+    class Flaky:
+        n = 0
+
+        def bind_tools(self, tools):
+            return self
+
+        def invoke(self, messages, config=None):
+            self.n += 1
+            if self.n == 1:
+                raise LLMUnavailable("cooling down", retry_after=21.3)
+            return "answer"
+
+    paced = runner.Paced(Flaky(), 0, max_wait=60, sleep=slept.append)
+    assert paced.invoke([]) == "answer"
+    assert any(22 <= s <= 23 for s in slept)            # waited the hinted time (+1 s), then retried
+
+
+def test_paced_gives_up_on_daily_quota_sized_waits():
+    import pytest
+    from app.llm import LLMUnavailable
+
+    class Daily:
+        def invoke(self, messages, config=None):
+            raise LLMUnavailable("daily quota", retry_after=7 * 3600)
+
+    with pytest.raises(runner.QuotaExhausted):
+        runner.Paced(Daily(), 0, max_wait=900, sleep=lambda s: None).invoke([])
+
+
+def test_judge_is_a_small_model_from_the_other_provider(monkeypatch):
+    monkeypatch.delenv("LLM_JUDGE", raising=False)
+    assert runner.default_judge("groq:openai/gpt-oss-120b").startswith("google_genai:")
+    assert runner.default_judge("google_genai:gemini-flash-lite-latest") == "groq:llama-3.1-8b-instant"
