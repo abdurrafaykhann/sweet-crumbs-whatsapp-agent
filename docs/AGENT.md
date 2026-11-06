@@ -69,7 +69,7 @@ Live runs on Gemini lite used about **2,800 input tokens per model call and 2 to
 - An unrecognised place such as "Lahore" was treated like a bare block number: now "unknown" vs "unclear".
 
 ### Known limits at this stage
-- A single provider and model per run; Gemini's free tier allows 15 requests per minute on the lite model, and a burst stops the agent. Retry with backoff, provider fallback and a guaranteed reply are M3.
+- Gemini's free tier allows 15 requests per minute on the lite model. Retries, fallback and the guaranteed reply are in place since M3 ([LLM.md](LLM.md)).
 - Escalation records the handoff but the bot does not yet go silent (M4).
 - Payment screenshots get a polite "text only" reply for now (M4 routes them to a human).
 - The 35-case eval with rewordings and an LLM judge is M8; the live runs above are three hand-picked conversations, not a measured pass rate.

@@ -32,6 +32,13 @@ Source of truth for business data and bot behaviour: [`data/sweet-crumbs-bakery-
 - **Custom/theme, wedding and bulk orders are never placed by the bot:** the draft reports `needs_human`, details are collected, then `escalate_to_human`.
 - The keyword offline bot, the keyword language detector and the old demo data are gone (D2, D3); the prototype remains in git history at `d2328d1`.
 
+## Adjustments made during M3
+- **Tool calls are not replayed across providers.** A request may move from Groq to Gemini mid-conversation; Gemini 3 rejects foreign function calls (missing its own thought signature). Foreign tool exchanges are flattened to a text note of what was looked up. Found live, covered by tests.
+- **Cooldowns are per process.** A provider whose daily quota is gone is skipped for the time it asked; with several app instances each learns separately (a shared cooldown in Redis is listed under "what I'd improve next").
+- **Quick follow-up messages are coalesced** into one model call (free-tier friendly) instead of one call each; each raw message is still logged.
+- **While a chat is escalated the bot is silent** (also when the assistant itself gave up): staff hand it back.
+- Retry after the "one moment" message resumes from the checkpoint, so the customer's message is never added to the conversation twice.
+
 ## Spec gaps found while reading (to resolve during the build)
 - No tool for business info (hours, branches, deals, policies, allergens, storage). Plan: add `get_info(topic)` so the prompt stays short.
 - Serving guide has a hole between 15 and 18 guests; the "15 to 20 people, take 3 lb" answer conflicts with "3 lb serves 18 to 22".

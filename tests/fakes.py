@@ -23,6 +23,8 @@ class ScriptedModel(BaseChatModel):
             raise AssertionError("the scripted model was called more often than the test prepared for")
         item = self.script[self.idx]
         self.idx += 1
+        if isinstance(item, Exception):
+            raise item
         return ChatResult(generations=[ChatGeneration(message=item(messages) if callable(item) else item)])
 
 

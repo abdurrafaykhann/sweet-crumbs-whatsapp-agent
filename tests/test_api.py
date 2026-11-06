@@ -17,7 +17,7 @@ def api(seeded, monkeypatch):
 
     class Reply:
         def __init__(self, text):
-            self.text, self.tools, self.escalated = text, [{"name": "get_info"}], False
+            self.text, self.tools, self.escalated, self.silent, self.provider = text, [{"name": "get_info"}], False, False, "groq"
 
     def fake_respond(phone, text, **kw):
         asked.append((phone, text))
@@ -47,7 +47,7 @@ def test_health(api):
 def test_chat_endpoint(api):
     client, *_ = api
     r = client.post("/chat", json={"phone": "923000000101", "text": "salam"}).json()
-    assert r == {"reply": "echo: salam", "tools": ["get_info"], "escalated": False}
+    assert r == {"reply": "echo: salam", "tools": ["get_info"], "escalated": False, "silent": False, "provider": "groq"}
 
 
 def test_webhook_answers_in_the_background_and_dedupes(api):
@@ -88,18 +88,3 @@ def test_rate_limit_per_customer(api, monkeypatch):
     for i in range(4):
         client.post("/webhook", json=payload(f"wamid.r{i}", f"msg {i}", sender="923005550000"))
     assert len(sent) == 2
-
-
-def test_a_busy_customer_gets_a_polite_message_not_silence(api, monkeypatch):
-    client, sent, _ = api
-
-    class NeverFree:
-        def __enter__(self):
-            return False
-
-        def __exit__(self, *a):
-            return False
-
-    monkeypatch.setattr(main.kv, "customer_lock", lambda phone, timeout=120: NeverFree())
-    client.post("/webhook", json=payload("wamid.b", "hi"))
-    assert sent == [("923001112233", main.BUSY)]

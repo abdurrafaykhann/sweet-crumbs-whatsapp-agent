@@ -5,7 +5,10 @@ few messages, and the order in progress kept in the database (not in the chat hi
 from __future__ import annotations
 
 import datetime as dt
+import logging
+import os
 import re
+import time
 from dataclasses import dataclass, field
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage, trim_messages
@@ -15,8 +18,10 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from . import clock, pricing
 from . import models as m
 from .database import session_scope
-from .llm import message_text
-from .tools import ACTIVE_STATUSES, Ctx, build_tools, ctx_from_config, load_state
+from .llm import CURRENT_PHONE, LLMUnavailable, message_text
+from .tools import ACTIVE_STATUSES, Ctx, _escalate, build_tools, ctx_from_config, load_state
+
+log = logging.getLogger("sweetcrumbs.agent")
 
 MAX_HISTORY = 12  # messages sent to the model; the order state does not depend on them
 OLD_TOOL_RESULT_CHARS = 140
@@ -111,12 +116,22 @@ def build_graph(model, checkpointer=None, tools=None):
     return g.compile(checkpointer=checkpointer)
 
 
+WAIT_TEXT = {"en": "One moment please, I'll be right with you \U0001F64F",
+             "rur": "Ek minute please, main abhi aap ko jawab deta hoon \U0001F64F",
+             "ur": "\u0627\u06cc\u06a9 \u0645\u0646\u0679 \u0628\u0631\u0627\u06c1 \u06a9\u0631\u0645\u060c \u0645\u06cc\u06ba \u0627\u0628\u06be\u06cc \u062c\u0648\u0627\u0628 \u062f\u06cc\u062a\u0627 \u06c1\u0648\u06ba \U0001F64F"}
+GIVE_UP_TEXT = {"en": "Sorry, we are having a technical problem. Our team will reply to you here shortly.",
+                "rur": "Maazrat, technical masla aa gaya hai. Hamari team jald yahan aap ko jawab degi.",
+                "ur": "\u0645\u0639\u0630\u0631\u062a\u060c \u062a\u06a9\u0646\u06cc\u06a9\u06cc \u0645\u0633\u0626\u0644\u06c1 \u0622 \u06af\u06cc\u0627 \u06c1\u06d2\u06d4 \u06c1\u0645\u0627\u0631\u06cc \u0679\u06cc\u0645 \u062c\u0644\u062f \u06cc\u06c1\u0627\u06ba \u062c\u0648\u0627\u0628 \u062f\u06d2 \u06af\u06cc\u0624"}
+
+
 @dataclass
 class Reply:
     text: str
     tools: list[dict] = field(default_factory=list)
-    usage: dict = field(default_factory=dict)
+    usage: dict = field(default_factory=lambda: {"input_tokens": 0, "output_tokens": 0, "calls": 0})
     escalated: bool = False
+    silent: bool = False      # a person is handling this chat: send nothing
+    provider: str = ""
 
 
 _default_graph = None
@@ -136,9 +151,43 @@ def reset_default_graph():
     _default_graph = None
 
 
-def respond(phone: str, text: str, *, graph=None, now: dt.datetime | None = None) -> Reply:
-    """One customer message in, one reply out. Increments the conversation turn (the confirm guard compares turns)."""
+def customer_language(phone: str) -> str:
+    with session_scope() as s:
+        c = s.query(m.Customer).filter(m.Customer.phone == phone).one_or_none()
+        return c.language if c and c.language in WAIT_TEXT else "en"
+
+
+def escalate_system(phone: str, reason: str, summary: str, priority: str = "high", now: dt.datetime | None = None) -> None:
+    """The assistant itself could not continue (model down, crash): hand the chat to staff with what we know."""
     now = now or clock.now()
+    with session_scope() as s:
+        conv = s.get(m.Conversation, phone)
+        if conv is None:
+            s.add(m.Conversation(phone=phone, turn=0, escalated=True))
+            s.flush()
+        _escalate(s, Ctx(phone, conv.turn if conv else 0, now), reason, summary, priority)
+        s.get(m.Conversation, phone).escalated = True
+
+
+def _log_bot(phone: str, text: str, tools_used: list | None = None, latency_ms: int = 0, provider: str = "") -> None:
+    with session_scope() as s:
+        s.add(m.Message(phone=phone, role="bot", text=text, tools=tools_used or [], latency_ms=latency_ms, provider=provider, created_at=clock.now()))
+
+
+def _run(graph, config: dict, text: str, resume: bool):
+    """First attempt sends the customer's message. A retry resumes from the checkpoint so the message is not added twice."""
+    if resume and graph.get_state(config).next:
+        return graph.invoke(None, config)
+    return graph.invoke({"messages": [HumanMessage(text)]}, config)
+
+
+def respond(phone: str, text: str, *, graph=None, now: dt.datetime | None = None, notify=None, log_customer: bool = True,
+            retry_delay: float | None = None) -> Reply:
+    """One customer message in, one reply out. Never leaves the customer without an answer: if the model is unavailable the customer
+    gets 'one moment' (through `notify`), the request is retried once from its checkpoint, and if that fails too the chat is handed to staff.
+    While a chat is escalated (staff have it) the reply is silent."""
+    now = now or clock.now()
+    started = time.perf_counter()
     with session_scope() as s:
         conv = s.get(m.Conversation, phone)
         if conv is None:
@@ -146,27 +195,60 @@ def respond(phone: str, text: str, *, graph=None, now: dt.datetime | None = None
             s.add(conv)
         conv.turn += 1
         conv.updated_at = dt.datetime.now(dt.timezone.utc).replace(tzinfo=None)
-        turn = conv.turn
-        s.add(m.Message(phone=phone, role="customer", text=text, created_at=now))
-    config = {"configurable": {"thread_id": phone, "phone": phone, "turn": turn, "now": now.isoformat(timespec="seconds")}, "recursion_limit": 18}
-    result = (graph or default_graph()).invoke({"messages": [HumanMessage(text)]}, config)
+        turn, silent = conv.turn, bool(conv.escalated)
+        if log_customer:
+            s.add(m.Message(phone=phone, role="customer", text=text, created_at=now))
+    if silent:
+        return Reply(text="", escalated=True, silent=True)
+    token = CURRENT_PHONE.set(phone)
+    try:
+        graph = graph or default_graph()
+        config = {"configurable": {"thread_id": phone, "phone": phone, "turn": turn, "now": now.isoformat(timespec="seconds")}, "recursion_limit": 18}
+        lang = customer_language(phone)
+        try:
+            result = _run(graph, config, text, resume=False)
+        except LLMUnavailable as e:
+            log.warning("model unavailable, telling the customer to wait: %s", e)
+            if notify:
+                notify(WAIT_TEXT[lang])
+            _log_bot(phone, WAIT_TEXT[lang])
+            wait = retry_delay if retry_delay is not None else float(os.environ.get("LLM_RETRY_DELAY", "20"))
+            time.sleep(max(wait, min(e.retry_after or 0, 60)))
+            try:
+                result = _run(graph, config, text, resume=True)
+            except Exception as e2:
+                return _give_up(phone, text, lang, "llm_unavailable", f"The assistant could not answer (models unavailable: {str(e2)[:120]}).", now)
+        except Exception as e:  # a bug or a crashed tool: do not retry blindly
+            log.exception("agent crashed")
+            return _give_up(phone, text, lang, "assistant_error", f"The assistant crashed ({type(e).__name__}: {str(e)[:120]}).", now)
+    finally:
+        CURRENT_PHONE.reset(token)
     msgs = result["messages"]
     start = max(i for i, x in enumerate(msgs) if isinstance(x, HumanMessage)) + 1
     new = msgs[start:]
     answer = wa_format(next((message_text(x) for x in reversed(new) if isinstance(x, AIMessage) and not x.tool_calls and message_text(x)), ""))
     tools_used, results = [], {x.tool_call_id: x.content for x in new if isinstance(x, ToolMessage)}
     usage = {"input_tokens": 0, "output_tokens": 0, "calls": 0}
+    provider = ""
     for x in new:
         if isinstance(x, AIMessage):
             usage["calls"] += 1
+            provider = (x.response_metadata or {}).get("served_by", provider)
             for k in ("input_tokens", "output_tokens"):
                 usage[k] += (x.usage_metadata or {}).get(k, 0)
             for tc in x.tool_calls:
                 res = results.get(tc["id"])
                 tools_used.append({"name": tc["name"], "args": tc["args"], "result": (res if isinstance(res, str) else str(res))[:400]})
-    if not answer:  # never leave the customer without a reply (M3 adds the full fallback chain)
+    if not answer:
         answer = "Sorry, I didn't catch that. Could you say it once more?"
+    _log_bot(phone, answer, tools_used, int((time.perf_counter() - started) * 1000), provider)
     with session_scope() as s:
-        s.add(m.Message(phone=phone, role="bot", text=answer, tools=tools_used, created_at=clock.now()))
         escalated = bool(s.get(m.Conversation, phone).escalated)
-    return Reply(text=answer, tools=tools_used, usage=usage, escalated=escalated)
+    return Reply(text=answer, tools=tools_used, usage=usage, escalated=escalated, provider=provider)
+
+
+def _give_up(phone: str, text: str, lang: str, reason: str, why: str, now: dt.datetime) -> Reply:
+    """Polite message, then staff take over with the customer's message and anything collected so far."""
+    escalate_system(phone, reason, f"{why} Customer's last message: \"{text[:300]}\"", "high", now)
+    _log_bot(phone, GIVE_UP_TEXT[lang])
+    return Reply(text=GIVE_UP_TEXT[lang], escalated=True)

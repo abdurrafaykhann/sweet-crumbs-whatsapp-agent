@@ -249,7 +249,25 @@ class Message(Base):
     role: Mapped[str] = mapped_column(String(10))                            # customer | bot | human
     text: Mapped[str] = mapped_column(Text, default="")
     tools: Mapped[list] = mapped_column(JSON, default=list)
+    latency_ms: Mapped[int] = mapped_column(Integer, default=0)                       # bot messages: time to answer the customer
+    provider: Mapped[str] = mapped_column(String(20), default="")                     # bot messages: which LLM provider answered
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class LlmUsage(Base):
+    """One row per model call (successful or not): which provider answered, tokens, latency, errors, fallbacks."""
+    __tablename__ = "llm_usage"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow, index=True)   # real UTC, not the demo clock
+    provider: Mapped[str] = mapped_column(String(20), index=True)                             # groq | google_genai
+    model: Mapped[str] = mapped_column(String(80), default="")
+    phone: Mapped[str] = mapped_column(String(20), default="")
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    latency_ms: Mapped[int] = mapped_column(Integer, default=0)
+    ok: Mapped[bool] = mapped_column(Boolean, default=True)
+    error_kind: Mapped[str] = mapped_column(String(20), default="")                           # rate_limit | server | timeout | auth | ...
+    fallback_from: Mapped[str] = mapped_column(String(20), default="")                        # set when this call served a request the primary could not
 
 
 class Counter(Base):

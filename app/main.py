@@ -12,7 +12,7 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel
 
-from . import agent, kv
+from . import agent, inbound, kv
 from . import models as m
 from .database import get_engine
 
@@ -25,7 +25,6 @@ WA_APP_SECRET = os.environ.get("WA_APP_SECRET", "")
 RATE_LIMIT = int(os.environ.get("RATE_LIMIT_PER_MIN", "20"))
 GRAPH = os.environ.get("WA_GRAPH_URL", "https://graph.facebook.com/v21.0")
 NON_TEXT = "Sorry, I can only read text right now. Could you type your message?"
-BUSY = "One moment please, I'm still replying to your previous message."
 
 
 @asynccontextmanager
@@ -38,14 +37,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Sweet Crumbs WhatsApp agent", lifespan=lifespan)
-
-
-def answer(phone: str, text: str) -> str:
-    """One customer message in, one reply out, serialised per customer."""
-    with kv.customer_lock(phone) as got:
-        if not got:
-            return BUSY
-        return agent.respond(phone, text).text
 
 
 class Chat(BaseModel):
@@ -62,8 +53,11 @@ def health():
 def chat(c: Chat):
     if not kv.allow(c.phone, RATE_LIMIT):
         raise HTTPException(429, "Too many messages, slow down a little.")
-    r = agent.respond(c.phone, c.text)
-    return {"reply": r.text, "tools": [t["name"] for t in r.tools], "escalated": r.escalated}
+    with kv.customer_lock(c.phone, timeout=60) as got:  # one message at a time per customer, same lock as the webhook
+        if not got:
+            raise HTTPException(503, "still answering the previous message")
+        r = agent.respond(c.phone, c.text)
+    return {"reply": r.text, "tools": [t["name"] for t in r.tools], "escalated": r.escalated, "silent": r.silent, "provider": r.provider}
 
 
 @app.get("/webhook")
@@ -106,13 +100,7 @@ def mark_read(message_id: str):
 
 def process(sender: str, text: str, message_id: str):
     mark_read(message_id)
-    try:
-        reply = answer(sender, text)
-    except Exception:
-        log.exception("agent error")  # M3 adds the provider fallback and the human escalation for this case
-        reply = "Sorry, something went wrong on our side. A team member will reply shortly."
-    if reply:
-        send_whatsapp(sender, reply)
+    inbound.process_incoming(sender, text, send=send_whatsapp)
 
 
 @app.post("/webhook")
