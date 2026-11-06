@@ -3,6 +3,7 @@
 > **Rebuild in progress.** The project is being rebuilt against `data/sweet-crumbs-bakery-demo.md` in milestones M0 to M9: see [docs/MILESTONES.md](docs/MILESTONES.md) and [docs/DECISIONS.md](docs/DECISIONS.md). Sections below describe the first prototype until each milestone replaces them.
 
 **Setup (Python 3.12):** `python -m venv .venv`, then `.venv\Scripts\pip install -r requirements-dev.txt` (macOS/Linux: `.venv/bin/pip`), copy `.env.example` to `.env`, run `pytest`.
+Seed the demo data with `python -m app.seed`, run the new tests with `pytest tests` (details in [docs/DATA_AND_RULES.md](docs/DATA_AND_RULES.md)).
 
 
 An agent for a small bakery ("Sweet Crumbs", demo data) that chats like a person on WhatsApp in **English, Roman Urdu and Urdu script**.

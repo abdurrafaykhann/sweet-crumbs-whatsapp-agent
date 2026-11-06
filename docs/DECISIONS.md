@@ -13,6 +13,13 @@ Source of truth for business data and bot behaviour: [`data/sweet-crumbs-bakery-
 | D6 | **Loyalty assumptions** (the spec is silent): points redeem in blocks of 100 (= Rs 500 off); the birthday 10% (one cake, birthday month) does **not** stack with deals or points. | Simple, explainable, easy to change later. To be confirmed. |
 | D7 | Demo clock: `DEMO_NOW` env var fixes "today" for repeatable tests and demos. | Date-dependent rules (Friday Jummah, same-day cutoff, notice periods). |
 
+## Adjustments made during M1
+- **Alembic is deferred.** The schema is created with `metadata.create_all` for now; migrations are introduced once the models stop changing (M4, when handoff and conversation tables land).
+- **New default database file:** `sweetcrumbs.db` (the prototype's `agent.db` has an incompatible schema). The legacy modules (`app/db.py`, `app/tools.py`, `app/agent.py`, `app/shop.py`) keep working and are removed in M2 together with the old demo data.
+- **Jummah slots:** a 1-hour delivery slot that overlaps 1:00-2:30 pm on a Friday is refused, so the first clean slot after the break is 3 pm. ASAP orders placed during the break go out after 2:30 pm.
+- **Serving guide gaps** are resolved by rounding up (16-17 guests get a 3 lb cake); 4 lb is offered as a custom cake only.
+- **Seed-time spec checks:** wording changes, missing deal schedules, zone disagreements and demo-order arithmetic stop the seed with an explicit error.
+
 ## Spec gaps found while reading (to resolve during the build)
 - No tool for business info (hours, branches, deals, policies, allergens, storage). Plan: add `get_info(topic)` so the prompt stays short.
 - Serving guide has a hole between 15 and 18 guests; the "15 to 20 people, take 3 lb" answer conflicts with "3 lb serves 18 to 22".
