@@ -2,7 +2,7 @@
 
 An AI agent that takes bakery orders on WhatsApp in **English, Roman Urdu and Urdu script**, built as a portfolio project for a fictional Karachi bakery. It understands meaning (no keyword matching), collects every detail before drafting an order, enforces the business rules in code, and never places an order without an explicit "yes" in a later message.
 
-> **Rebuild in progress.** Milestones M0 to M7 are done; the eval suite and the final write-up follow. See [docs/MILESTONES.md](docs/MILESTONES.md). The single source of truth for the business is [`data/sweet-crumbs-bakery-demo.md`](data/sweet-crumbs-bakery-demo.md).
+> **Rebuild in progress.** All milestones are built; the live eval run is still pending free-tier quota (see Evals). See [docs/MILESTONES.md](docs/MILESTONES.md). The single source of truth for the business is [`data/sweet-crumbs-bakery-demo.md`](data/sweet-crumbs-bakery-demo.md).
 
 ```mermaid
 flowchart LR
@@ -15,6 +15,8 @@ flowchart LR
   T --> P[pricing + rules in Python]
   T --> D[(SQLite / PostgreSQL)]
   A --> K[(per-phone memory: checkpointer)]
+  D --> O[Owner dashboard /admin: orders, inbox, stock, analytics]
+  O -->|take over / reply| W
 ```
 
 ## Run it
@@ -25,7 +27,9 @@ python -m app.seed                      # load the demo data from the spec
 python -m app.run                       # seed if empty + start: web chat http://localhost:8000/ui, /health, /webhook
 python -m app.chat_cli --phone 923000000101 --debug     # chat as Ayesha in the terminal (/image, /reset, /state, /quit)
 docker compose up --build               # app + PostgreSQL + Redis, seeds the demo data on first start
-pytest                                  # 198 tests
+pytest                                  # 204 tests
+python -m evals.runner --list           # the eval suite (needs API keys, see Evals)
+# dashboard: http://localhost:8000/admin  (ADMIN_PASSWORD and JWT_SECRET in .env)
 ```
 Demo customers (phone numbers and their orders) are in section 11 and 12 of the spec; set `DEMO_NOW=2026-11-06T14:00:00` for the spec's "today" (Friday 6 November 2026).
 
@@ -46,10 +50,35 @@ Demo customers (phone numbers and their orders) are in section 11 and 12 of the 
 ![Analytics](docs/screenshots/dashboard-analytics.jpg)
 ![Payment check on a phone](docs/screenshots/dashboard-mobile-payment.jpg)
 
-- **Tests:** 198, on SQLite and on PostgreSQL 17 (Redis paths on `fakeredis`). The model is replaced by a scripted fake in tests; live conversations on a real model are described in [docs/AGENT.md](docs/AGENT.md).
+- **Tests:** 204, on SQLite and on PostgreSQL 17 (Redis paths on `fakeredis`). The model is replaced by a scripted fake in tests; live conversations on a real model are described in [docs/AGENT.md](docs/AGENT.md).
 
-## Not built yet
-LLM-judged evals with rewordings (M8), final write-up (M9). No real WhatsApp number is connected, and nothing is deployed.
+## Evals (M8)
+`evals/` holds the 35 cases from the spec, each with the original wording plus 5 rewordings (polite, rushed, angry, typos, Roman Urdu, Urdu script, mixed), two multi-turn journeys and five adversarial cases (prompt injection, fake owner, other customer's order, data requests, system-prompt leak). Every run starts from a fresh copy of the seeded database. A run passes only if the **deterministic checks** (numbers, tool use, order and escalation state in the database) and the **LLM judge** (a different provider from the bot, graded on facts, tools, language, tone, details asked, safety) both pass.
+
+```bash
+python -m evals.runner --list
+python -m evals.runner --category delivery --rewordings 2
+python -m evals.runner --rewordings 1 --model google_genai:gemini-flash-lite-latest --judge groq:openai/gpt-oss-120b --delay 4 --tag gemini
+python -m evals.runner --rewordings 1 --model groq:openai/gpt-oss-120b --judge google_genai:gemini-flash-lite-latest --delay 3 --tag groq
+```
+Passed runs are cached, so a re-run only repeats failures; runs where a provider's quota ran out are reported as errors or "unjudged", never as failures. Reports are written to `evals/results/<tag>.md` and `.json`.
+
+**Results: not available yet.** On the day I ran them, both free tiers ran out of quota partway through (Groq's daily tokens, then Gemini's daily requests), so no complete pass rate exists and I will not invent one. Two live smoke cases passed on both providers (price lookup; manager request needed a language fix noted by the judge). The harness itself is covered by offline tests. Fill in this table after running the two commands above on a fresh quota day:
+
+| Bot model | Runs | Passed | Deterministic | Judge | Avg time |
+|---|---|---|---|---|---|
+| Gemini flash-lite | _pending_ | | | | |
+| Groq gpt-oss-120b | _pending_ | | | | |
+
+## What I'd improve next
+- Run and publish the full eval table on a paid or fresh-quota day, and add the failing transcripts to the prompt/tool fixes.
+- Provider cooldown is per process: move it to Redis so several workers share it.
+- WhatsApp's 24-hour window limits staff replies and status messages outside it; use approved message templates.
+- Payment verification is manual by design; integrate the JazzCash/Easypaisa/bank webhook to match amounts automatically.
+- Proper dashboard users and roles instead of one password; server-sent events instead of polling.
+- Voice notes (speech-to-text) and images of cake designs.
+
+No real WhatsApp number is connected, and nothing is deployed.
 
 ## Free-tier note
 Everything runs on the free tiers of Groq and Google Gemini. Free tiers may use prompts to improve their models, so only demo data should go through them; real customer data needs a paid tier. The free limits are tight (see [docs/DECISIONS.md](docs/DECISIONS.md)), which is why the prompt, the tool definitions and the chat history are all kept small.
