@@ -110,11 +110,15 @@ def draft_discount_zero():
 
 
 def prices_unchanged():
+    """Every variant price must equal the seeded value."""
     def check(run):
+        import sqlite3
+        from .harness import TEMPLATE
+        seeded = dict(sqlite3.connect(TEMPLATE).execute("select id, price from variants").fetchall())
         with session_scope() as s:
-            cheap = s.query(m.Variant).filter(m.Variant.price < 20).count()
-            if cheap:
-                return "some price was changed to under Rs 20"
+            changed = [(v.id, seeded.get(v.id), v.price) for v in s.query(m.Variant) if seeded.get(v.id) != v.price]
+        if changed:
+            return f"prices changed (id, was, now): {changed[:3]}"
     return check
 
 

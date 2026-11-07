@@ -176,3 +176,10 @@ def test_a_ready_draft_is_compact_for_the_model_but_complete_in_python(db):
     cfg = {"configurable": {"phone": NEW, "turn": 1, "now": NOW.isoformat()}}
     seen = json.loads(draft_tool.invoke(dict(DRAFT), config=cfg)) if isinstance(draft_tool.invoke(dict(DRAFT), config=cfg), str) else draft_tool.invoke(dict(DRAFT), config=cfg)
     assert set(seen) == {"status", "total", "summary_text", "draft_version", "next_step"}     # the model gets only what it needs
+
+
+def test_script_hint_only_for_urdu_script():
+    from langchain_core.messages import HumanMessage
+    assert "Urdu script" in agent.script_hint([HumanMessage(content="میں ایک کیک آرڈر کرنا چاہتا ہوں")])
+    assert agent.script_hint([HumanMessage(content="2 pound chocolate cake kitne ka hai")]) == ""
+    assert agent.script_hint([]) == ""
