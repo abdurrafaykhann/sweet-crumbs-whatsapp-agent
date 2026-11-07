@@ -2,6 +2,20 @@ import { useEffect, useRef, useState } from 'react'
 import { api } from '../api.js'
 import { Badge, Button, Card, Empty, ErrorNote, StatusBadge, clock, go, inputCls, rs, useLoad, when } from '../ui.jsx'
 
+const MOOD_TONE = { happy: 'green', neutral: 'gray', unhappy: 'amber', angry: 'red' }
+const MOOD_ICON = { happy: '😊', neutral: '😐', unhappy: '🙁', angry: '😡' }
+
+// Intent and mood tags from the message classifier (absent when CLASSIFIER_URL is not set)
+function TagChips({ tag }) {
+  if (!tag) return null
+  return (
+    <>
+      <Badge tone="blue">{tag.intent.replaceAll('_', ' ')}</Badge>
+      <Badge tone={MOOD_TONE[tag.mood] || 'gray'}>{MOOD_ICON[tag.mood]} {tag.mood}</Badge>
+    </>
+  )
+}
+
 export default function Inbox({ tick, arg, toast }) {
   const [q, setQ] = useState('')
   const [only, setOnly] = useState(false)
@@ -24,7 +38,8 @@ export default function Inbox({ tick, arg, toast }) {
                 <span className="shrink-0 text-xs text-stone-500">{when(c.last_at)}</span>
               </div>
               <div className="rtl-text mt-0.5 truncate text-sm text-stone-600">{c.last_role === 'customer' ? '' : '↩ '}{c.last_text}</div>
-              <div className="mt-1 flex gap-1">
+              <div className="mt-1 flex flex-wrap gap-1">
+                <TagChips tag={c.tag} />
                 {c.open_escalation && <Badge tone="red">{c.open_escalation.reason}</Badge>}
                 {!c.bot_active && <Badge tone="amber">staff</Badge>}
               </div>
@@ -134,6 +149,7 @@ function Bubble({ m }) {
         {m.role === 'human' && <div className="text-[10px] font-semibold uppercase text-sky-700">Staff</div>}
         {m.attachment && <div className="mb-1 rounded bg-stone-100 px-2 py-1 text-xs">📎 {m.attachment.kind || 'attachment'}</div>}
         <div className="rtl-text whitespace-pre-wrap">{m.text}</div>
+        {m.tag && <div className="mt-1 flex flex-wrap gap-1"><TagChips tag={m.tag} />{m.tag.flagged && <Badge tone="red">auto-flagged</Badge>}</div>}
         <div className="mt-1 flex flex-wrap items-center justify-end gap-1 text-[10px] text-stone-500">
           {tools.map((t, i) => <span key={i} className="rounded bg-stone-200/70 px-1">🔧 {t}</span>)}
           {m.provider && m.provider !== 'system' && <span>{m.provider}{m.latency_ms ? ` · ${(m.latency_ms / 1000).toFixed(1)}s` : ''}</span>}

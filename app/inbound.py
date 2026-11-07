@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import logging
 
-from . import agent, kv
+from . import agent, classifier, kv
 from . import models as m
 from .database import session_scope
 
@@ -21,7 +21,11 @@ def process_incoming(phone: str, text: str, send, now=None) -> None:
     """Queue the message, then answer everything waiting for this customer unless another worker is already doing it.
     `send(phone, text)` delivers a reply (WhatsApp)."""
     with session_scope() as s:
-        s.add(m.Message(phone=phone, role="customer", text=text, created_at=now or agent.clock.now()))  # log each raw message
+        msg = m.Message(phone=phone, role="customer", text=text, created_at=now or agent.clock.now())
+        s.add(msg)  # log each raw message
+        s.flush()
+        message_id = msg.id
+    classifier.handle_inbound(phone, text, message_id, send, now)  # optional intent/mood tag; may hand an angry customer to staff
     kv.queue_push(_key("q", phone), text)
     drain(phone, send, now=now)
 
