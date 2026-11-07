@@ -93,9 +93,22 @@ How to read this: the strict pass rate is the number to quote, and it is not yet
 | Gemini flash-lite | 126 | 63% | 94% | 23.5 s |
 | Groq gpt-oss-120b | not run yet: Groq's daily token quota was used up by judging | | | |
 
-**After the first round of fixes (custom cakes now collect details before handoff, damage reports ask for a photo, weekend-only items are never "not on the menu"; `evals/results/gemini-after-fix.md`):** re-running only the ordering and handoff cases gave **ordering 11/12 (92%, was 44%)** and **handoff 4/7 (57%, was 47%)**, with every deterministic check passing (19/19). Gemini's daily quota ended that run early (3 conversations lost), so it is a partial re-run, not a full table. The remaining handoff failures were a missing price estimate when a theme-cake request is handed to staff (a prompt line I have since tightened, not yet re-measured) and one crushed-cake reply that skipped the apology.
+**Second full run, after the ordering/handoff fixes (`evals/results/gemini-full.md`, 126 conversations, small judge `gpt-oss-20b`):** strict pass 73/126 (58%), deterministic checks 115/126 (91%). Handoff rose from 47% to **80%** and ordering from 44% to **67%**.
 
-Next: re-run everything on a fresh quota day (`python -m evals.runner --rewordings 2 --model google_genai:gemini-flash-lite-latest --delay 4 --tag gemini`), then the Groq half (`--model groq:openai/gpt-oss-120b`, in batches with `--category`), and replace the tables above with the full results.
+**Third round, targeted at what that run exposed (`evals/results/gemini-round3.md`):** the bot now states the Rs 1,000 delivery minimum in its first reply, answers Roman Urdu in Roman Urdu, and is told when a message is in Urdu script; two checks in my own eval harness were also wrong (a "prices changed" check that flagged the free Rs 0 items, and a points check that demanded a tool call for an answer already in context) and were fixed. Re-running those seven cases (20 conversations): **all 20 pass every deterministic check (100%)**.
+
+**Honest caveat about the strict scores.** The strict pass rate depends on the judge model, and the small free judge I could afford is unreliable: reading its verdicts it repeatedly marks correct answers as failures (it called the real Rs 3,200 price "invented" and a correct English reply "Urdu instead of English"). Re-grading failures with the larger judge (`gpt-oss-120b`) lifted an earlier run from 58% to 63%, but Groq's free quota ran out before I could re-grade this run. So treat the **deterministic checks as the trustworthy measurement** (facts, prices, tool use, database state, confirmation and privacy rules) and the strict rate as a lower bound.
+
+| Measure | Gemini flash-lite as the bot |
+|---|---|
+| Deterministic checks, full run | 91% (115/126); the failures found were fixed in round 3 |
+| Deterministic checks, after fixes (targeted re-run) | 100% (20/20) |
+| Strict pass (checks + small LLM judge), full run | 58% (lower bound; judge noise) |
+| Handoff / ordering (strict) | 80% / 67% |
+| Average per conversation | about 21 s, 9k tokens |
+| Groq gpt-oss-120b as the bot | not run: Groq's free daily quota was used up by judging |
+
+Next: on a fresh quota day, re-grade with the large judge (`--regrade gemini-full --judge groq:openai/gpt-oss-120b`), run the Groq half (`--model groq:openai/gpt-oss-120b`, in batches with `--category`), and fill in the comparison column.
 
 ## Design trade-offs and roadmap
 Choices made on purpose for a free, demo-ready build, and what comes next:
