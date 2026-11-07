@@ -199,12 +199,16 @@ def search_menu(ctx: Ctx, query: str = "", category: str = "") -> dict:
                 flags.append("dine-in/takeaway only")
             if p.sold_days:
                 flags.append("only " + "/".join(p.sold_days))
+                if ctx.now.strftime("%a") not in p.sold_days:
+                    flags.append(f"NOT baked today ({ctx.now.strftime('%A')}): it IS on our menu, so say it is a weekend item and offer to schedule it for the next {'/'.join(p.sold_days)}")
             if p.made_to_order:
                 flags.append("made to order")
             if p.notice_hours:
                 flags.append(f"{p.notice_hours} h notice")
             if p.is_custom or p.requires_human:
                 flags.append("custom: staff confirm the quote")
+            if p.variants and all(v.stock == 0 for v in p.variants):
+                flags.append("SOLD OUT today: offer the closest alternative")
             return {"sku": p.sku, "name": p.name, "category": p.category, "notes": p.notes if p.category == "Cakes" else "",
                     "variants": [{"label": v.label, "price": v.price, "left": v.stock, "in_stock": v.stock is None or v.stock > 0} for v in p.variants],
                     "flags": flags}

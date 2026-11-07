@@ -35,7 +35,7 @@ def test_number_check_reads_urdu_digits_and_separators():
 
 def test_order_checks_use_the_turn_by_turn_order_count():
     run = Run("x", [Turn("a"), Turn("b")], placed_after=[1, 1])
-    assert checks.not_placed_before_last_turn()(run)
+    assert checks.not_placed_before(1)(run)
     assert checks.order_placed()(Run("x", [Turn("a")], placed_after=[1])) is None
     assert checks.no_order_placed()(Run("x", [Turn("a")], placed_after=[0])) is None
 

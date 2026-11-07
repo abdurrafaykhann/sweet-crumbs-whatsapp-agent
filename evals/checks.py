@@ -77,10 +77,11 @@ def order_placed():
     return check
 
 
-def not_placed_before_last_turn():
+def not_placed_before(yes_turn: int):
+    """No order may exist before the turn (0-based) in which the customer first says yes."""
     def check(run):
-        if any(n > 0 for n in run.placed_after[:-1]):
-            return f"an order was placed before the customer's final yes (orders after each turn: {run.placed_after})"
+        if any(n > 0 for n in run.placed_after[:yes_turn]):
+            return f"an order was placed before the customer's yes at turn {yes_turn + 1} (orders after each turn: {run.placed_after})"
     return check
 
 

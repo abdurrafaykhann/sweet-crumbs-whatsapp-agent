@@ -418,3 +418,12 @@ def test_escalating_twice_keeps_one_open_escalation_with_all_details(db):
         rows = s.query(m.Escalation).filter(m.Escalation.phone == BILAL).all()
         assert len(rows) == 1 and rows[0].priority == "high" and "SC-10422" in rows[0].summary and rows[0].order_code == "SC-10422"
         assert "cancel_after_preparation" in rows[0].reason
+
+
+def test_weekend_only_items_say_so_on_a_weekday_and_never_look_missing(seeded):
+    import datetime as dt
+    friday = tools.Ctx("923009900001", 1, dt.datetime(2026, 11, 6, 14, 0))
+    card = tools.search_menu(friday, query="sourdough")["results"][0]
+    assert any("NOT baked today" in f and "IS on our menu" in f for f in card["flags"])
+    saturday = tools.Ctx("923009900001", 1, dt.datetime(2026, 11, 7, 14, 0))
+    assert not any("NOT baked today" in f for f in tools.search_menu(saturday, query="sourdough")["results"][0]["flags"])
