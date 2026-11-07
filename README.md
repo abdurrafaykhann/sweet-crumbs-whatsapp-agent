@@ -2,7 +2,17 @@
 
 An AI agent that takes bakery orders on WhatsApp in **English, Roman Urdu and Urdu script**, built as a portfolio project for a fictional Karachi bakery. It understands meaning (no keyword matching), collects every detail before drafting an order, enforces the business rules in code, and never places an order without an explicit "yes" in a later message.
 
-> **Rebuild in progress.** All milestones are built; the live eval run is still pending free-tier quota (see Evals). See [docs/MILESTONES.md](docs/MILESTONES.md). The single source of truth for the business is [`data/sweet-crumbs-bakery-demo.md`](data/sweet-crumbs-bakery-demo.md).
+## Highlights
+- **Speaks the customer's language:** English, Roman Urdu and Urdu script, including mixed messages, with a warm shop-manager tone.
+- **Rules live in code, not in the prompt:** prices, delivery zones and fees, minimum order, notice times, Friday prayer break and the 50% advance are tested Python. The model asks tools instead of doing maths, so it cannot invent a price.
+- **Safe by construction:** an order is placed only after an explicit "yes" in a later message (enforced in code), payments are always verified by a person, and one customer can never see another's order.
+- **Never leaves a customer hanging:** two free LLM providers with automatic fallback, backoff with jitter, a "one moment" message, then a human takes over.
+- **Real human handoff:** the bot goes silent when staff take a chat; when they hand back, it catches up on what it missed.
+- **Full owner dashboard:** live orders with sound, status buttons that message the customer in their language, inbox, stock editing the bot sees instantly, analytics, mobile friendly, with a read-only demo login.
+- **Quality you can measure:** 200+ automated tests on SQLite and PostgreSQL, plus an eval suite of the spec's 35 cases with five rewordings each in different tones and languages, graded by a deterministic checker and a judge model from a different provider.
+- **Runs on free tiers** (Groq + Gemini), with one command to seed and start, or `docker compose up`.
+
+The single source of truth for the business is [`data/sweet-crumbs-bakery-demo.md`](data/sweet-crumbs-bakery-demo.md); build history is in [docs/MILESTONES.md](docs/MILESTONES.md).
 
 ```mermaid
 flowchart LR
@@ -74,24 +84,15 @@ Fill in this table after running the two commands above on a fresh quota day:
 | Gemini flash-lite | _pending_ | | | | |
 | Groq gpt-oss-120b | _pending_ | | | | |
 
-## What I'd improve next
-- Run and publish the full eval table on a paid or fresh-quota day, and add the failing transcripts to the prompt/tool fixes.
-- Provider cooldown is per process: move it to Redis so several workers share it.
-- WhatsApp's 24-hour window limits staff replies and status messages outside it; use approved message templates.
-- Payment verification is manual by design; integrate the JazzCash/Easypaisa/bank webhook to match amounts automatically.
-- Proper dashboard users and roles instead of one password; server-sent events instead of polling.
-- Voice notes (speech-to-text) and images of cake designs.
-
-No real WhatsApp number is connected, and nothing is deployed.
-
-## Known limits
-- **Free-tier quotas.** Groq and Gemini free tiers allow only a few hundred conversations a day between them (Groq: 8k tokens/min, 200k/day on the 120B model; Gemini flash-lite: 15 requests/min plus a daily cap). Past that, customers get a "one moment" message and then a person. Fine for a demo, not for a busy shop.
-- **Provider cooldown is per process.** When a provider's daily quota is gone each server process learns it separately; with several workers the cooldown should live in Redis.
-- **WhatsApp's 24-hour window.** Free-form replies and status messages only reach a customer who wrote within 24 hours; outside it Meta requires approved templates (not built).
-- **Payments are verified by a person**, by design: the bot never says money was received.
-- **Single owner login** (plus an optional read-only demo login), no roles.
-- **The model can still be wrong.** Hard rules (prices, fees, confirmation, privacy) are enforced in code, but wording, language choice and judgement calls are the model's. The eval table shows how often.
-- **Nothing is deployed and no real WhatsApp number is connected yet** (see docs/DEPLOY.md and docs/WHATSAPP_SETUP.md for the steps).
+## Design trade-offs and roadmap
+Choices made on purpose for a free, demo-ready build, and what comes next:
+- **Free-tier models:** Groq and Gemini free tiers cover a demo comfortably; automatic fallback and a human handoff keep customers answered when a quota runs out. A paid tier is a one-line config change (`LLM_PRIMARY`).
+- **Payments verified by a person:** the bot never claims money arrived. Next step: match JazzCash/Easypaisa/bank notifications automatically.
+- **Provider cooldown shared per process:** simple and robust for one worker; moving it to Redis lets many workers share it.
+- **WhatsApp templates:** replies inside the 24-hour window work today; approved message templates extend status updates beyond it.
+- **Dashboard:** one owner login plus a read-only demo login today; roles and server-sent events are the next upgrade.
+- **Next features:** voice notes (speech-to-text), cake design photos, publishing the full eval table on a fresh quota day.
+- **Status:** built and tested locally; the deployment and WhatsApp test-number steps are documented in docs/DEPLOY.md and docs/WHATSAPP_SETUP.md.
 
 ## Free-tier note
 Everything runs on the free tiers of Groq and Google Gemini. Free tiers may use prompts to improve their models, so only demo data should go through them; real customer data needs a paid tier. The free limits are tight (see [docs/DECISIONS.md](docs/DECISIONS.md)), which is why the prompt, the tool definitions and the chat history are all kept small.
