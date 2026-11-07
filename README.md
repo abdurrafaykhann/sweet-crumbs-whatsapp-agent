@@ -75,14 +75,25 @@ The judge defaults to a small model from the other provider (Groq's `gpt-oss-20b
 
 Passed runs are cached, so a re-run only repeats failures; runs where a provider's quota ran out are reported as errors or "unjudged", never as failures. Reports are written to `evals/results/<tag>.md` and `.json`.
 
-**Results: not available yet.** On the day I ran them, both free tiers ran out of quota partway through (Groq's daily tokens, then Gemini's daily requests), so no complete pass rate exists and I will not invent one. Two live smoke cases passed on both providers (price lookup; manager request needed a language fix noted by the judge). The harness itself is covered by offline tests. **Partial run (Gemini flash-lite as the bot, Groq as the judge; `evals/results/gemini-flash-lite.*`):** 84 conversations were attempted. 25 were lost because Gemini's quota ran out, and in the other 59 the Groq judge was out of quota for most of them, so no judge verdict exists for them. The report's "passed 7/59" counts those missing verdicts as failures (that run used the first version of the runner, which I have since fixed to report them as "unjudged"), so ignore that number. What the run does show: **58 of the 59 conversations passed every deterministic check** (prices, delivery fees, tool use, no unconfirmed orders, no discounts, no leaked data). Those checks cover facts and state only, not tone or language, which is what the judge is for.
+**Results (Gemini flash-lite as the bot, 126 conversations: every case in its original wording plus two rewordings; `evals/results/gemini-regraded.md`):**
 
-Fill in this table after running the two commands above on a fresh quota day:
+| Measure | Result |
+|---|---|
+| Deterministic checks (prices, fees, tool use, database state, no unconfirmed orders, no discounts, no leaked data) | **119 / 126 (94%)** |
+| Strict pass (deterministic checks **and** LLM judge) | 79 / 126 (63%) |
+| Safety and adversarial cases (injection, fake owner, other customer's order, discounts, data requests) | 25 / 30 (83%) |
+| Delivery / status / journeys | 67% / 67% / 67% |
+| Ordering / handoff | 44% / 47% |
+| Average per conversation | 23.5 s, about 8.8k tokens |
 
-| Bot model | Runs | Passed | Deterministic | Judge | Avg time |
-|---|---|---|---|---|---|
-| Gemini flash-lite | _pending_ | | | | |
-| Groq gpt-oss-120b | _pending_ | | | | |
+How to read this: the strict pass rate is the number to quote, and it is not yet where I want it. The judge's failures cluster in two places, ordering (the model sometimes asks for details in a different order than the spec's flow or skips a required question) and handoff wording (for example not asking for a photo before escalating a crushed cake). The hard rules held up much better than the conversational polish, which is exactly what the design intends: money, stock, confirmation and privacy are code, not prompt. Judging used a small model first (`gpt-oss-20b`); I corrected two flaws it showed (it graded English customers against a Roman Urdu expectation, and called real menu items invented) and re-graded the failures with `gpt-oss-120b`, which improved 58% to 63%. 33 of the failures could not be re-graded because Groq's quota ran out, so they keep the first judge's verdict and the true rate is probably a little higher.
+
+| Bot model | Conversations | Strict pass | Deterministic | Avg time |
+|---|---|---|---|---|
+| Gemini flash-lite | 126 | 63% | 94% | 23.5 s |
+| Groq gpt-oss-120b | not run yet: Groq's daily token quota was used up by judging | | | |
+
+Next: run the Groq half on a fresh quota day (`python -m evals.runner --rewordings 2 --model groq:openai/gpt-oss-120b --delay 3 --tag groq`, in batches with `--category`) and fix the ordering-flow and handoff-wording failures listed in the report, then re-run.
 
 ## Design trade-offs and roadmap
 Choices made on purpose for a free, demo-ready build, and what comes next:

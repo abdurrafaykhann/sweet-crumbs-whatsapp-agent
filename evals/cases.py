@@ -35,7 +35,7 @@ THEME = "Spiderman theme, chocolate, 2 tiers, delivery to DHA Phase 5, name Hira
 CASES: list[Case] = [
     Case("1", "info", "new", ["Hi"], "Greets warmly. Offers the menu, ordering or an order status.", [c.never_used("confirm_order"), c.no_order_placed()],
          variants=[V("formal", "Assalamualaikum"), V("roman", "salam, kya haal hai"), V("rushed", "hey"), V("urdu", "السلام علیکم"), V("typo", "helo"), V("mixed", "Hi! kuch order karna tha")]),
-    Case("2", "pricing", "new", ["Chocolate cake 2 pound kitne ka hai"], "Looks the price up with search_menu. Replies Rs 3,200 in Roman Urdu.",
+    Case("2", "pricing", "new", ["Chocolate cake 2 pound kitne ka hai"], "Looks the price up with search_menu. Replies Rs 3,200, in the language the customer wrote in.",
          [c.used_tool("search_menu", "check_stock"), c.says_number(3200)],
          variants=[V("polite", "Hello, how much is your chocolate fudge cake in 2 lb?"), V("rushed", "choc cake 2lb price?"), V("roman", "2 pound chocolate cake ki qeemat kya hai"),
                    V("urdu", "چاکلیٹ کیک دو پاؤنڈ کتنے کا ہے؟"), V("typo", "choclate cak 2 pund kitna"), V("angry", "why is nobody telling the price?? 2 pound chocolate cake how much")]),

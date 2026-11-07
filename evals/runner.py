@@ -146,6 +146,37 @@ def markdown(summary: dict, records: list[dict], title: str) -> str:
     return "\n".join(lines)
 
 
+def regrade(args) -> None:
+    """Grade saved conversations again (new judge or corrected expectations). The bot is not called; hard checks are kept as recorded."""
+    from app.llm import get_model
+    from .cases import by_id
+    from .harness import Run, Turn
+    src = json.loads((RESULTS / f"{args.regrade}.json").read_text(encoding="utf-8"))
+    judge_name = args.judge or default_judge(src["bot"])
+    judge_model = Paced(get_model(judge_name), args.judge_delay, args.max_wait)
+    out = []
+    for rec in src["records"]:
+        if rec["status"] != "ok" or (args.only_failed and rec["passed"]):
+            out.append(rec)
+            continue
+        case = by_id(rec["case"])
+        run = Run(phone="", turns=[Turn(**t) for t in rec["turns"]])
+        try:
+            verdict = grade(judge_model, case, run)
+        except Exception as exc:
+            print(f"case {case.id} {rec['style']}: judge failed ({str(exc)[:80]}); keeping the earlier grade", flush=True)
+            out.append(rec)
+            continue
+        new = dict(rec, judge=verdict, judge_model=judge_name, regraded=True, passed=not rec["hard_failures"] and bool(verdict["pass"]))
+        print(f"case {case.id:>3} {rec['style']:<9} {'PASS' if new['passed'] else 'FAIL'} (was {'pass' if rec['passed'] else 'fail'})", flush=True)
+        out.append(new)
+    summary = summarise(out)
+    base = RESULTS / f"{args.tag if args.tag != 'run' else args.regrade + '-regraded'}"
+    base.with_suffix(".json").write_text(json.dumps({"bot": src["bot"], "judge": judge_name, "summary": summary, "records": out}, ensure_ascii=False, indent=1), encoding="utf-8")
+    base.with_suffix(".md").write_text(markdown(summary, out, f"Eval results: {base.name} (bot {src['bot']}, judge {judge_name})"), encoding="utf-8")
+    print(json.dumps({k: summary[k] for k in ("passed", "counted", "hard_check_pass", "judge_pass")}))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--category", action="append", choices=CATEGORIES)
@@ -160,9 +191,13 @@ def main() -> None:
     ap.add_argument("--force", action="store_true", help="ignore cached passes")
     ap.add_argument("--tag", default="run")
     ap.add_argument("--list", action="store_true")
+    ap.add_argument("--regrade", metavar="TAG", help="re-grade the saved conversations of results/TAG.json with the current judge (no bot calls)")
+    ap.add_argument("--only-failed", action="store_true", help="with --regrade: only the runs that did not pass")
     args = ap.parse_args()
     import sys
     sys.stdout.reconfigure(encoding="utf-8")
+    if args.regrade:
+        return regrade(args)
     cases = [c for c in CASES if (not args.category or c.category in args.category) and (not args.case or c.id in args.case)]
     if args.list:
         for c in cases:
