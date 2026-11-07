@@ -70,7 +70,7 @@ class Paced:
                 self.last = self.clock()
 
 
-SMALL_JUDGES = {"groq": "groq:llama-3.1-8b-instant", "google_genai": "google_genai:gemini-flash-lite-latest"}
+SMALL_JUDGES = {"groq": "groq:openai/gpt-oss-20b", "google_genai": "google_genai:gemini-flash-lite-latest"}
 
 
 def default_judge(bot: str | None) -> str:

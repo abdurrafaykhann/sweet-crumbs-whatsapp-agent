@@ -61,7 +61,7 @@ python -m evals.runner --category delivery --rewordings 2
 python -m evals.runner --rewordings 1 --model google_genai:gemini-flash-lite-latest --delay 4 --tag gemini
 python -m evals.runner --rewordings 1 --model groq:openai/gpt-oss-120b --delay 3 --tag groq
 ```
-The judge defaults to a small model from the other provider (Groq's `llama-3.1-8b-instant` when Gemini is the bot, Gemini flash-lite when Groq is the bot), because every model has its own free quota and the big one is kept for the bot. When a provider says "try again in N seconds" the runner sleeps exactly that long and carries on (`--max-wait`, default 15 minutes); when the wait is daily-quota sized it stops after 3 failed runs in a row and prints "re-run later". Passed runs are cached, so re-running the same command resumes where it stopped. Plan: run the Gemini half after Gemini's daily reset (1 pm Karachi time) and the Groq half in batches through the day with `--category`.
+The judge defaults to a small model from the other provider (Groq's `gpt-oss-20b` when Gemini is the bot, Gemini flash-lite when Groq is the bot), because every model has its own free quota and the big one is kept for the bot. When a provider says "try again in N seconds" the runner sleeps exactly that long and carries on (`--max-wait`, default 15 minutes); when the wait is daily-quota sized it stops after 3 failed runs in a row and prints "re-run later". Passed runs are cached, so re-running the same command resumes where it stopped. Plan: run the Gemini half after Gemini's daily reset (1 pm Karachi time) and the Groq half in batches through the day with `--category`.
 
 Passed runs are cached, so a re-run only repeats failures; runs where a provider's quota ran out are reported as errors or "unjudged", never as failures. Reports are written to `evals/results/<tag>.md` and `.json`.
 
@@ -83,6 +83,15 @@ Fill in this table after running the two commands above on a fresh quota day:
 - Voice notes (speech-to-text) and images of cake designs.
 
 No real WhatsApp number is connected, and nothing is deployed.
+
+## Known limits
+- **Free-tier quotas.** Groq and Gemini free tiers allow only a few hundred conversations a day between them (Groq: 8k tokens/min, 200k/day on the 120B model; Gemini flash-lite: 15 requests/min plus a daily cap). Past that, customers get a "one moment" message and then a person. Fine for a demo, not for a busy shop.
+- **Provider cooldown is per process.** When a provider's daily quota is gone each server process learns it separately; with several workers the cooldown should live in Redis.
+- **WhatsApp's 24-hour window.** Free-form replies and status messages only reach a customer who wrote within 24 hours; outside it Meta requires approved templates (not built).
+- **Payments are verified by a person**, by design: the bot never says money was received.
+- **Single owner login** (plus an optional read-only demo login), no roles.
+- **The model can still be wrong.** Hard rules (prices, fees, confirmation, privacy) are enforced in code, but wording, language choice and judgement calls are the model's. The eval table shows how often.
+- **Nothing is deployed and no real WhatsApp number is connected yet** (see docs/DEPLOY.md and docs/WHATSAPP_SETUP.md for the steps).
 
 ## Free-tier note
 Everything runs on the free tiers of Groq and Google Gemini. Free tiers may use prompts to improve their models, so only demo data should go through them; real customer data needs a paid tier. The free limits are tight (see [docs/DECISIONS.md](docs/DECISIONS.md)), which is why the prompt, the tool definitions and the chat history are all kept small.

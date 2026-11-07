@@ -34,9 +34,12 @@ def admin_required(request: Request, token: str | None = Query(None)) -> str:
     header = request.headers.get("authorization", "")
     raw = header[7:] if header.lower().startswith("bearer ") else token
     try:
-        return jwt.decode(raw or "", secret, algorithms=["HS256"])["sub"]
+        sub = jwt.decode(raw or "", secret, algorithms=["HS256"])["sub"]
     except jwt.PyJWTError:
         raise HTTPException(401, "login required")
+    if sub == "demo" and request.method not in ("GET", "HEAD", "OPTIONS"):
+        raise HTTPException(403, "this is the read-only demo login: you can look at everything but not change anything")
+    return sub
 
 
 class Login(BaseModel):
@@ -51,10 +54,15 @@ def login(body: Login, request: Request):
     ip = request.client.host if request.client else "?"
     if not kv.allow(f"login:{ip}", limit=10, window=60):
         raise HTTPException(429, "too many attempts")
-    if not hmac.compare_digest(body.password.encode(), password.encode()):
+    demo = os.environ.get("DEMO_PASSWORD", "")      # optional second password: a read-only login to share with visitors
+    if hmac.compare_digest(body.password.encode(), password.encode()):
+        role = "owner"
+    elif demo and hmac.compare_digest(body.password.encode(), demo.encode()):
+        role = "demo"
+    else:
         raise HTTPException(401, "wrong password")
     exp = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=TOKEN_HOURS)
-    return {"token": jwt.encode({"sub": "owner", "exp": exp}, secret, algorithm="HS256"), "expires_in_hours": TOKEN_HOURS}
+    return {"token": jwt.encode({"sub": role, "exp": exp}, secret, algorithm="HS256"), "expires_in_hours": TOKEN_HOURS, "role": role}
 
 
 auth = [Depends(admin_required)]

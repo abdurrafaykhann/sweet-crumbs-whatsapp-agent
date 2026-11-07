@@ -1,11 +1,11 @@
 {
  "bot": "google_genai:gemini-flash-lite-latest",
- "judge": "groq:openai/gpt-oss-120b",
+ "judge": "groq:llama-3.1-8b-instant",
  "summary": {
-  "variants_run": 2,
-  "errors": 2,
-  "unjudged": 0,
-  "unjudged_hard_pass": 0,
+  "variants_run": 1,
+  "errors": 0,
+  "unjudged": 1,
+  "unjudged_hard_pass": 1,
   "passed": 0,
   "counted": 0,
   "hard_check_pass": 0,
@@ -23,50 +23,33 @@
    "turns": [
     {
      "user": "Mera order kahan hai",
-     "reply": "Maazrat, technical masla aa gaya hai. Hamari team jald yahan aap ko jawab degi.",
-     "tools": [],
-     "escalated": true,
-     "provider": "",
-     "seconds": 5.2,
-     "tokens": 0
+     "reply": "Ayesha ji, aap ke paas do active orders hain: ek to SC-10421 jo abhi rider Imran ke paas hai aur qareeban 6:35 PM tak aap tak pahunch jaye ga, aur doosra SC-10431 jo Sunday ko 5-6 PM ke liye scheduled hai. Aap kis wale ke baray mein puch rahi theen? 😊",
+     "tools": [
+      {
+       "name": "order_status",
+       "args": {},
+       "result": "{\"found\": true, \"orders\": [{\"code\": \"SC-10421\", \"status\": \"out_for_delivery\", \"status_en\": \"out for delivery\", \"status_rur\": \"rider ke paas hai, raste mein hai\", \"items\": [\"1 x Chocolate Fudge (2 lb)\", \"1 x Candles pack (10)\"], \"total\": 3450, \"fulfilment\": \"delivery\", \"address\": \"House 45, St 12, Khayaban-e-Shamsheer, DHA Ph 5\", \"eta\": \"6:35 PM\", \"rider\": \"Imran\", \"payment_method\": \"cash\", \"paymen"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 2.4,
+     "tokens": 5428
     }
    ],
    "bot": "google_genai:gemini-flash-lite-latest",
-   "judge_model": "groq:openai/gpt-oss-120b",
-   "seconds": 5.2,
-   "tokens": 0,
-   "provider": "",
-   "status": "error",
+   "judge_model": "groq:llama-3.1-8b-instant",
+   "seconds": 2.4,
+   "tokens": 5428,
+   "provider": "google_genai",
+   "status": "unjudged",
    "hard_failures": [],
-   "judge": {},
-   "passed": false,
-   "note": "the model was unavailable or crashed during this run"
-  },
-  {
-   "case": "28",
-   "category": "status",
-   "style": "original",
-   "turns": [
-    {
-     "user": "Mere points?",
-     "reply": "",
-     "tools": [],
-     "escalated": true,
-     "provider": "",
-     "seconds": 0.0,
-     "tokens": 0
-    }
-   ],
-   "bot": "google_genai:gemini-flash-lite-latest",
-   "judge_model": "groq:openai/gpt-oss-120b",
-   "seconds": 0.0,
-   "tokens": 0,
-   "provider": "",
-   "status": "error",
-   "hard_failures": [],
-   "judge": {},
-   "passed": false,
-   "note": "the model was unavailable or crashed during this run"
+   "judge": {
+    "pass": null,
+    "reason": "judge failed: provider asks for 61 s, more than --max-wait 60 s"
+   },
+   "judged": false,
+   "passed": false
   }
  ]
 }

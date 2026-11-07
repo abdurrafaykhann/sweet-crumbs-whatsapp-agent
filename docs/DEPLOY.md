@@ -27,7 +27,9 @@ Use the `Dockerfile` and set the same environment variables; add a Postgres and 
 | `REDIS_URL` | `redis://host:6379/0`; unset = in-memory (single instance only) |
 | `GROQ_API_KEY`, `GEMINI_API_KEY` | free-tier LLM keys; `LLM_PRIMARY` (e.g. `groq:openai/gpt-oss-120b`) selects the model, see `.env.example` |
 | `WA_VERIFY_TOKEN`, `WA_ACCESS_TOKEN`, `WA_PHONE_NUMBER_ID`, `WA_APP_SECRET` | WhatsApp Cloud API |
-| `ADMIN_TOKEN` | protects the team endpoints (payment confirm, order status); send as `x-admin-token` |
+| `ADMIN_PASSWORD`, `JWT_SECRET` | owner login for the dashboard at `/admin` (JWT_SECRET: 16+ characters; Render generates it) |
+| `DEMO_PASSWORD` | optional second, **read-only** dashboard login to put next to a public demo link |
+| `ENV=production` | webhook signature is mandatory and the dev chat/endpoints are off (set `ENABLE_DEV_CHAT=1` to keep the web chat for a demo) |
 | `SEED_ON_START=1` | load the demo data when the database is empty |
 | `ENV=production` | the webhook refuses to run without `WA_APP_SECRET` and the development endpoints (`/chat`, `/ui`, `/api/dev/*`) are switched off; `ENABLE_DEV_CHAT=1` re-enables them |
 | `RATE_LIMIT_PER_MIN` | messages per customer per minute (default 20) |

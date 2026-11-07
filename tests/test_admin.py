@@ -302,3 +302,17 @@ def test_api_routes_are_not_shadowed_by_the_dashboard(api):
     anon = TestClient(main.app)
     assert anon.get("/health").status_code == 200
     assert anon.get("/api/admin/orders").status_code == 401                      # still behind the login
+
+
+def test_demo_login_is_read_only(api, monkeypatch):
+    monkeypatch.setenv("DEMO_PASSWORD", "look-around")
+    anon = TestClient(main.app)
+    r = anon.post("/api/admin/login", json={"password": "look-around"}).json()
+    assert r["role"] == "demo"
+    h = {"Authorization": f"Bearer {r['token']}"}
+    assert anon.get("/api/admin/orders", headers=h).status_code == 200                       # can look
+    assert anon.post("/api/admin/orders/SC-10422/status", json={"status": "delivered"}, headers=h).status_code == 403   # cannot change
+    assert anon.post("/api/admin/conversations/923000000101/take-over", headers=h).status_code == 403
+    assert anon.patch("/api/admin/variants/1", json={"price": 1}, headers=h).status_code == 403
+    monkeypatch.delenv("DEMO_PASSWORD")
+    assert anon.post("/api/admin/login", json={"password": "look-around"}).status_code == 401   # unset = no demo login

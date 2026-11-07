@@ -11,8 +11,9 @@ export default function Login({ onDone }) {
     e.preventDefault()
     setBusy(true); setError(null)
     try {
-      const { token } = await api.login(password)
+      const { token, role } = await api.login(password)
       setToken(token)
+      try { localStorage.setItem('sc_role', role) } catch { /* private mode */ }
       onDone()
     } catch (err) {
       setError(err.status === 503 ? new Error('Login is switched off: set ADMIN_PASSWORD and JWT_SECRET (16+ characters) in .env.') :

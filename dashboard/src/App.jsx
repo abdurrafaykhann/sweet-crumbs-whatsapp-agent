@@ -96,6 +96,7 @@ export default function App() {
   const badge = { escalations: counts.escalations, orders: counts.orders }
   const props = { tick, arg: route.arg, toast }
 
+  const demo = (() => { try { return localStorage.getItem('sc_role') === 'demo' } catch { return false } })()
   return (
     <div className="flex h-full flex-col md:flex-row">
       <aside className="hidden w-60 shrink-0 flex-col border-r border-stone-200 bg-white md:flex">
@@ -127,6 +128,7 @@ export default function App() {
       </header>
 
       <main className="min-h-0 flex-1 overflow-y-auto">
+        {demo && <div className="bg-amber-100 px-4 py-1.5 text-center text-xs font-medium text-amber-900">Demo login: read-only. You can look around, but changes are switched off.</div>}
         <div className="mx-auto max-w-6xl p-3 md:p-6">
           {page === 'orders' && <Orders {...props} />}
           {page === 'inbox' && <Inbox {...props} />}

@@ -100,4 +100,4 @@ def test_paced_gives_up_on_daily_quota_sized_waits():
 def test_judge_is_a_small_model_from_the_other_provider(monkeypatch):
     monkeypatch.delenv("LLM_JUDGE", raising=False)
     assert runner.default_judge("groq:openai/gpt-oss-120b").startswith("google_genai:")
-    assert runner.default_judge("google_genai:gemini-flash-lite-latest") == "groq:llama-3.1-8b-instant"
+    assert runner.default_judge("google_genai:gemini-flash-lite-latest") == "groq:openai/gpt-oss-20b"
