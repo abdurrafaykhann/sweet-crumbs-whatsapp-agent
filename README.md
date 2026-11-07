@@ -106,7 +106,7 @@ How to read this: the strict pass rate is the number to quote, and it is not yet
 | Strict pass (checks + small LLM judge), full run | 58% (lower bound; judge noise) |
 | Handoff / ordering (strict) | 80% / 67% |
 | Average per conversation | about 21 s, 9k tokens |
-| Groq gpt-oss-120b as the bot | not run: Groq's free daily quota was used up by judging |
+| Groq gpt-oss-120b as the bot (judge: Gemini flash-lite) | only 8 conversations fit in Groq's free daily quota (`evals/results/groq-originals.md`): 6/8 strict, 8/8 deterministic, about 28 s each. Too few to compare with Gemini's 126, so no head-to-head claim is made |
 
 Next: on a fresh quota day, re-grade with the large judge (`--regrade gemini-full --judge groq:openai/gpt-oss-120b`), run the Groq half (`--model groq:openai/gpt-oss-120b`, in batches with `--category`), and fill in the comparison column.
 

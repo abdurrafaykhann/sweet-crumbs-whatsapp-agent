@@ -1,19 +1,29 @@
 {
- "bot": "google_genai:gemini-flash-lite-latest",
- "judge": "groq:llama-3.1-8b-instant",
+ "bot": "groq:openai/gpt-oss-120b",
+ "judge": "google_genai:gemini-flash-lite-latest",
  "summary": {
   "variants_run": 1,
   "errors": 0,
-  "unjudged": 1,
-  "unjudged_hard_pass": 1,
-  "passed": 0,
-  "counted": 0,
-  "hard_check_pass": 0,
-  "judge_pass": 0,
-  "by_category": {},
-  "by_style": {},
-  "avg_seconds": 0,
-  "avg_tokens": 0
+  "unjudged": 0,
+  "unjudged_hard_pass": 0,
+  "passed": 1,
+  "counted": 1,
+  "hard_check_pass": 1,
+  "judge_pass": 1,
+  "by_category": {
+   "status": [
+    1,
+    1
+   ]
+  },
+  "by_style": {
+   "original": [
+    1,
+    1
+   ]
+  },
+  "avg_seconds": 2.3,
+  "avg_tokens": 5222
  },
  "records": [
   {
@@ -23,33 +33,41 @@
    "turns": [
     {
      "user": "Mera order kahan hai",
-     "reply": "Ayesha ji, aap ke paas do active orders hain: ek to SC-10421 jo abhi rider Imran ke paas hai aur qareeban 6:35 PM tak aap tak pahunch jaye ga, aur doosra SC-10431 jo Sunday ko 5-6 PM ke liye scheduled hai. Aap kis wale ke baray mein puch rahi theen? 😊",
+     "reply": "Ayesha, aapka SC‑10421 rider Imran ke paas hai, ETA 6:35 PM. SC‑10431 Sun 8 Nov 5‑6 pm ke liye schedule hai. Kaun sa order ke baare mein pooch rahe hain? 😊",
      "tools": [
       {
        "name": "order_status",
-       "args": {},
+       "args": {
+        "code": ""
+       },
        "result": "{\"found\": true, \"orders\": [{\"code\": \"SC-10421\", \"status\": \"out_for_delivery\", \"status_en\": \"out for delivery\", \"status_rur\": \"rider ke paas hai, raste mein hai\", \"items\": [\"1 x Chocolate Fudge (2 lb)\", \"1 x Candles pack (10)\"], \"total\": 3450, \"fulfilment\": \"delivery\", \"address\": \"House 45, St 12, Khayaban-e-Shamsheer, DHA Ph 5\", \"eta\": \"6:35 PM\", \"rider\": \"Imran\", \"payment_method\": \"cash\", \"paymen"
       }
      ],
      "escalated": false,
-     "provider": "google_genai",
-     "seconds": 2.4,
-     "tokens": 5428
+     "provider": "groq",
+     "seconds": 2.3,
+     "tokens": 5222
     }
    ],
-   "bot": "google_genai:gemini-flash-lite-latest",
-   "judge_model": "groq:llama-3.1-8b-instant",
-   "seconds": 2.4,
-   "tokens": 5428,
-   "provider": "google_genai",
-   "status": "unjudged",
+   "bot": "groq:openai/gpt-oss-120b",
+   "judge_model": "google_genai:gemini-flash-lite-latest",
+   "seconds": 2.3,
+   "tokens": 5222,
+   "provider": "groq",
+   "status": "ok",
    "hard_failures": [],
    "judge": {
-    "pass": null,
-    "reason": "judge failed: provider asks for 61 s, more than --max-wait 60 s"
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Accurately provided delivery details for SC-10421 with rider Imran and ETA, mentioned the other order SC-10431, and matched the customer's Roman Urdu language and warm tone."
    },
-   "judged": false,
-   "passed": false
+   "judged": true,
+   "passed": true
   }
  ]
 }
