@@ -1,0 +1,1466 @@
+{
+ "bot": "google_genai:gemini-flash-lite-latest",
+ "judge": "groq:openai/gpt-oss-20b",
+ "summary": {
+  "variants_run": 22,
+  "errors": 3,
+  "unjudged": 0,
+  "unjudged_hard_pass": 0,
+  "passed": 15,
+  "counted": 19,
+  "hard_check_pass": 19,
+  "judge_pass": 15,
+  "by_category": {
+   "handoff": [
+    4,
+    7
+   ],
+   "ordering": [
+    11,
+    12
+   ]
+  },
+  "by_style": {
+   "original": [
+    6,
+    7
+   ],
+   "polite": [
+    3,
+    4
+   ],
+   "roman": [
+    2,
+    3
+   ],
+   "rushed": [
+    4,
+    5
+   ]
+  },
+  "avg_seconds": 34.0,
+  "avg_tokens": 14928
+ },
+ "records": [
+  {
+   "case": "12",
+   "category": "handoff",
+   "style": "original",
+   "turns": [
+    {
+     "user": "I sent the advance",
+     "reply": "Thanks Sana, I've passed your payment message to our team to check and confirm for order SC-10430. One of our staff members will reply to you right here shortly! 😊",
+     "tools": [
+      {
+       "name": "get_customer_profile",
+       "args": {},
+       "result": "{\"known\": true, \"name\": \"Sana Malik\", \"usual_language\": \"English\", \"points\": 610, \"points_value_rs\": 3000, \"birthday_this_month\": false, \"saved_addresses\": [{\"label\": \"home\", \"text\": \"Bungalow 9, Block 4, Clifton\", \"zone\": \"A\", \"served\": true}, {\"label\": \"mother's\", \"text\": \"House 77, Block 2, PECHS\", \"zone\": \"B\", \"served\": true}], \"active_orders\": [{\"code\": \"SC-10430\", \"status\": \"awaiting_advance"
+      },
+      {
+       "name": "escalate_to_human",
+       "args": {
+        "priority": "normal",
+        "reason": "Customer says advance payment sent for SC-10430",
+        "summary": "Customer Sana Malik stated she sent the advance payment for custom order SC-10430 (Total Rs 13,400). Forwarded to staff to verify payment.",
+        "order_code": "SC-10430"
+       },
+       "result": "{\"escalated\": true, \"id\": 1, \"hint\": \"tell the customer once that our staff will reply in this chat; do not promise outcomes or refunds\"}"
+      }
+     ],
+     "escalated": true,
+     "provider": "google_genai",
+     "seconds": 15.0,
+     "tokens": 8715
+    },
+    {
+     "user": "[image]",
+     "reply": "",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 0.0,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 15.0,
+   "tokens": 8715,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant thanked, escalated, and stayed safe, matching expected behavior."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "12",
+   "category": "handoff",
+   "style": "polite",
+   "turns": [
+    {
+     "user": "Hi, I have sent the advance payment, here is the screenshot",
+     "reply": "Thanks for sharing that, Sana! Our staff will check the screenshot and update your order SC-10430 right here shortly. 😊",
+     "tools": [
+      {
+       "name": "escalate_to_human",
+       "args": {
+        "priority": "normal",
+        "reason": "Customer sent payment screenshot for order SC-10430",
+        "summary": "Customer Sana Malik sent a payment screenshot for active order SC-10430 (awaiting advance)."
+       },
+       "result": "{\"escalated\": true, \"id\": 1, \"hint\": \"tell the customer once that our staff will reply in this chat; do not promise outcomes or refunds\"}"
+      }
+     ],
+     "escalated": true,
+     "provider": "google_genai",
+     "seconds": 11.7,
+     "tokens": 5531
+    },
+    {
+     "user": "[image]",
+     "reply": "",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 0.0,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 11.7,
+   "tokens": 5531,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant thanked, escalated, didn't confirm payment, used tool, language matched, tone warm, no missing details, safe behavior."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "12",
+   "category": "handoff",
+   "style": "rushed",
+   "turns": [
+    {
+     "user": "advance bhej diya",
+     "reply": "Thank you, Sana! I've noted that. Our staff will verify the payment and update your order SC-10430 shortly right here. 🍰",
+     "tools": [
+      {
+       "name": "get_customer_profile",
+       "args": {},
+       "result": "{\"known\": true, \"name\": \"Sana Malik\", \"usual_language\": \"English\", \"points\": 610, \"points_value_rs\": 3000, \"birthday_this_month\": false, \"saved_addresses\": [{\"label\": \"home\", \"text\": \"Bungalow 9, Block 4, Clifton\", \"zone\": \"A\", \"served\": true}, {\"label\": \"mother's\", \"text\": \"House 77, Block 2, PECHS\", \"zone\": \"B\", \"served\": true}], \"active_orders\": [{\"code\": \"SC-10430\", \"status\": \"awaiting_advance"
+      },
+      {
+       "name": "escalate_to_human",
+       "args": {
+        "summary": "Customer Sana Malik sent payment advance for order SC-10430 (Custom fondant theme cake, total Rs 13,400). Please verify payment.",
+        "reason": "Customer sent payment advance screenshot/notification for order SC-10430",
+        "priority": "normal"
+       },
+       "result": "{\"escalated\": true, \"id\": 1, \"hint\": \"tell the customer once that our staff will reply in this chat; do not promise outcomes or refunds\"}"
+      }
+     ],
+     "escalated": true,
+     "provider": "google_genai",
+     "seconds": 17.8,
+     "tokens": 8680
+    },
+    {
+     "user": "[image]",
+     "reply": "",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 0.0,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 17.8,
+   "tokens": 8680,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant thanked, escalated, used correct tools, language, tone, no extra details, safe. All criteria satisfied."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "14",
+   "category": "ordering",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Hi, I'd like 6 chicken patties for pickup from the Gulshan branch as soon as possible. My name is Hira and I'll pay cash.",
+     "reply": "Hi Hira! Here is your order summary:\n\n- 6 x Chicken Patty - Rs 840\nTotal: Rs 840 (Cash on pickup)\nPickup: Gulshan-e-Iqbal branch (ASAP, around 2:30 PM)\n\nPlease reply YES to confirm! 😊",
+     "tools": [
+      {
+       "name": "search_menu",
+       "args": {
+        "query": "chicken patties",
+        "category": "Savoury"
+       },
+       "result": "{\"results\": [{\"sku\": \"SV-CPAT\", \"name\": \"Chicken Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 140, \"left\": 40, \"in_stock\": true}]}, {\"sku\": \"SV-PUFF\", \"name\": \"Chicken Pizza Puff\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 180, \"left\": 0, \"in_stock\": false}], \"flags\": [\"SOLD OUT today: offer the closest alternative\"]}, {\"sku\": \"SV-SAMO\", \"name\": \"Chic"
+      },
+      {
+       "name": "draft_order",
+       "args": {
+        "items": [
+         {
+          "qty": 6,
+          "sku": "SV-CPAT",
+          "variant": "each"
+         }
+        ]
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"fulfilment (delivery or pickup)\", \"when they want it (now/ASAP or a date and time slot)\", \"customer name\", \"payment method (cash on delivery, JazzCash/Easypaisa or bank transfer)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"is_gift\": "
+      },
+      {
+       "name": "update_draft",
+       "args": {
+        "payment_method": "cash",
+        "asap": true,
+        "fulfilment": "pickup",
+        "branch": "Gulshan-e-Iqbal",
+        "customer_name": "Hira"
+       },
+       "result": "{\"status\": \"ready_for_summary\", \"total\": 840, \"summary_text\": \"Please check your order:\\n- 6 x Chicken Patty - Rs 840\\nSubtotal: Rs 840\\n*Total: Rs 840* - Cash on delivery\\nPickup: Gulshan-e-Iqbal branch\\nWhen: ASAP, around 2:30 PM\\nReply YES to confirm, or tell me what to change.\", \"draft_version\": 2, \"next_step\": \"Send the summary_text to the customer in their language (keep every number) and as"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 25.0,
+     "tokens": 12965
+    },
+    {
+     "user": "yes",
+     "reply": "All confirmed, Hira! Your order (SC-10432) for 6 chicken patties is placed for pickup at our Gulshan-e-Iqbal branch (ASAP). See you soon! 🎉",
+     "tools": [
+      {
+       "name": "confirm_order",
+       "args": {},
+       "result": "{\"confirmed\": true, \"code\": \"SC-10432\", \"status\": \"confirmed\", \"total\": 840, \"when\": \"ASAP, around 2:30 PM\", \"payment\": \"Pay Rs 840 at pickup\"}"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 14.1,
+     "tokens": 6211
+    },
+    {
+     "user": "yes please confirm it",
+     "reply": "Hira, your order SC-10432 is already confirmed and being prepared for pickup at our Gulshan-e-Iqbal branch. Estimated ready time is around 2:30 PM! Let me know if you need anything else 😊",
+     "tools": [
+      {
+       "name": "order_status",
+       "args": {
+        "code": "SC-10432"
+       },
+       "result": "{\"found\": true, \"orders\": [{\"code\": \"SC-10432\", \"status\": \"confirmed\", \"status_en\": \"confirmed\", \"status_rur\": \"confirm ho gaya hai\", \"items\": [\"6 x Chicken Patty\"], \"total\": 840, \"fulfilment\": \"pickup\", \"pickup_branch\": \"Gulshan-e-Iqbal\", \"eta\": \"2:30 PM\", \"payment_method\": \"cash\", \"payment_status\": \"unpaid\"}]}"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 13.4,
+     "tokens": 5707
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 52.5,
+   "tokens": 24883,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "All criteria met; correct facts, proper tool use, language, tone, details, and safety."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "14",
+   "category": "ordering",
+   "style": "roman",
+   "turns": [
+    {
+     "user": "Salam, mujhe Gulshan branch se pickup ke liye 6 chicken patties chahiye, abhi. Naam Hira, cash dungi.",
+     "reply": "Walaikum Assalam Hira! 6 chicken patties Gulshan branch se pickup ke liye note ho gayi hain, total Rs 840. Aap kis time tak pickup karengi?",
+     "tools": [
+      {
+       "name": "check_stock",
+       "args": {
+        "qty": 6,
+        "sku": "chicken-patty"
+       },
+       "result": "{\"error\": \"unknown_sku\", \"hint\": \"use search_menu to find the sku\"}"
+      },
+      {
+       "name": "search_menu",
+       "args": {
+        "query": "patty",
+        "category": "Savoury"
+       },
+       "result": "{\"results\": [{\"sku\": \"SV-CPAT\", \"name\": \"Chicken Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 140, \"left\": 40, \"in_stock\": true}]}, {\"sku\": \"SV-VPAT\", \"name\": \"Vegetable Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 110, \"left\": 20, \"in_stock\": true}]}], \"deals\": [{\"deal\": \"Office Hi-Tea Box\", \"price\": 540, \"usual_price\": 570, \"includes\": \"1 chick"
+      },
+      {
+       "name": "draft_order",
+       "args": {
+        "items": [
+         {
+          "qty": 6,
+          "sku": "SV-CPAT",
+          "variant": "each"
+         }
+        ]
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"fulfilment (delivery or pickup)\", \"when they want it (now/ASAP or a date and time slot)\", \"customer name\", \"payment method (cash on delivery, JazzCash/Easypaisa or bank transfer)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"is_gift\": "
+      },
+      {
+       "name": "update_draft",
+       "args": {
+        "payment_method": "cash",
+        "fulfilment": "pickup",
+        "customer_name": "Hira",
+        "branch": "Gulshan-e-Iqbal"
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"when they want it (now/ASAP or a date and time slot)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"fulfilment\": \"pickup\", \"branch\": \"Gulshan-e-Iqbal\", \"payment_method\": \"Cash on delivery\", \"customer_name\": \"Hira\", \"is_gift\": false, \"dr"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 31.8,
+     "tokens": 14832
+    },
+    {
+     "user": "haan theek hai confirm",
+     "reply": "Hira, please check your order:\n\n- 6 x Chicken Patty - Rs 840\nTotal: Rs 840 (Cash on pickup)\nPickup: Gulshan-e-Iqbal branch (ASAP, around 2:30 PM)\n\nPlease reply YES to confirm! 😊",
+     "tools": [
+      {
+       "name": "update_draft",
+       "args": {
+        "asap": true
+       },
+       "result": "{\"status\": \"ready_for_summary\", \"total\": 840, \"summary_text\": \"Please check your order:\\n- 6 x Chicken Patty - Rs 840\\nSubtotal: Rs 840\\n*Total: Rs 840* - Cash on delivery\\nPickup: Gulshan-e-Iqbal branch\\nWhen: ASAP, around 2:30 PM\\nReply YES to confirm, or tell me what to change.\", \"draft_version\": 3, \"next_step\": \"Send the summary_text to the customer in their language (keep every number) and as"
+      },
+      {
+       "name": "confirm_order",
+       "args": {},
+       "result": "{\"confirmed\": false, \"error\": \"confirm_in_same_turn\", \"hint\": \"the summary was created in this same customer message: send it and wait for the customer's YES in their next message\"}"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 18.0,
+     "tokens": 8858
+    },
+    {
+     "user": "ji bilkul confirm kar dein",
+     "reply": "All done, Hira! Your order SC-10432 is confirmed. You can pick it up from our Gulshan-e-Iqbal branch (payment at the counter). See you soon! 🎉",
+     "tools": [
+      {
+       "name": "confirm_order",
+       "args": {},
+       "result": "{\"confirmed\": true, \"code\": \"SC-10432\", \"status\": \"confirmed\", \"total\": 840, \"when\": \"ASAP, around 2:30 PM\", \"payment\": \"Pay Rs 840 at pickup\"}"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 12.1,
+     "tokens": 5844
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 61.9,
+   "tokens": 29534,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant followed all expected steps, used tools correctly, maintained language, tone, details, and safety."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "14",
+   "category": "ordering",
+   "style": "rushed",
+   "turns": [
+    {
+     "user": "6 chicken patties pickup gulshan asap, hira, cash",
+     "reply": "Hi Hira! Could you let me know what time you'd like to pick up your 6 chicken patties from Gulshan? 🥐",
+     "tools": [
+      {
+       "name": "check_stock",
+       "args": {
+        "sku": "chicken patties",
+        "qty": 6
+       },
+       "result": "{\"error\": \"unknown_sku\", \"hint\": \"use search_menu to find the sku\"}"
+      },
+      {
+       "name": "search_menu",
+       "args": {
+        "category": "Savoury",
+        "query": "chicken patties"
+       },
+       "result": "{\"results\": [{\"sku\": \"SV-CPAT\", \"name\": \"Chicken Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 140, \"left\": 40, \"in_stock\": true}]}, {\"sku\": \"SV-PUFF\", \"name\": \"Chicken Pizza Puff\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 180, \"left\": 0, \"in_stock\": false}], \"flags\": [\"SOLD OUT today: offer the closest alternative\"]}, {\"sku\": \"SV-SAMO\", \"name\": \"Chic"
+      },
+      {
+       "name": "draft_order",
+       "args": {
+        "items": [
+         {
+          "sku": "SV-CPAT",
+          "qty": 6
+         }
+        ]
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"fulfilment (delivery or pickup)\", \"when they want it (now/ASAP or a date and time slot)\", \"customer name\", \"payment method (cash on delivery, JazzCash/Easypaisa or bank transfer)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"is_gift\": "
+      },
+      {
+       "name": "update_draft",
+       "args": {
+        "payment_method": "cash",
+        "fulfilment": "pickup",
+        "branch": "Gulshan-e-Iqbal",
+        "customer_name": "Hira"
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"when they want it (now/ASAP or a date and time slot)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"fulfilment\": \"pickup\", \"branch\": \"Gulshan-e-Iqbal\", \"payment_method\": \"Cash on delivery\", \"customer_name\": \"Hira\", \"is_gift\": false, \"dr"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 29.7,
+     "tokens": 15642
+    },
+    {
+     "user": "yes",
+     "reply": "Please check your order:\n- 6 x Chicken Patty - Rs 840\nSubtotal: Rs 840\n*Total: Rs 840* - Cash on delivery\nPickup: Gulshan-e-Iqbal branch\nWhen: ASAP, around 2:30 PM\n\nReply YES to confirm! 😊",
+     "tools": [
+      {
+       "name": "update_draft",
+       "args": {
+        "asap": true
+       },
+       "result": "{\"status\": \"ready_for_summary\", \"total\": 840, \"summary_text\": \"Please check your order:\\n- 6 x Chicken Patty - Rs 840\\nSubtotal: Rs 840\\n*Total: Rs 840* - Cash on delivery\\nPickup: Gulshan-e-Iqbal branch\\nWhen: ASAP, around 2:30 PM\\nReply YES to confirm, or tell me what to change.\", \"draft_version\": 3, \"next_step\": \"Send the summary_text to the customer in their language (keep every number) and as"
+      },
+      {
+       "name": "confirm_order",
+       "args": {},
+       "result": "{\"confirmed\": false, \"error\": \"confirm_in_same_turn\", \"hint\": \"the summary was created in this same customer message: send it and wait for the customer's YES in their next message\"}"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 18.6,
+     "tokens": 8818
+    },
+    {
+     "user": "yes confirm",
+     "reply": "All set, Hira! Your order SC-10432 is confirmed and our team is getting your chicken patties ready for pickup at Gulshan-e-Iqbal. 😊",
+     "tools": [
+      {
+       "name": "confirm_order",
+       "args": {},
+       "result": "{\"confirmed\": true, \"code\": \"SC-10432\", \"status\": \"confirmed\", \"total\": 840, \"when\": \"ASAP, around 2:30 PM\", \"payment\": \"Pay Rs 840 at pickup\"}"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 13.0,
+     "tokens": 5834
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 61.3,
+   "tokens": 30294,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant followed all expected steps, used tools correctly, maintained proper tone, asked for missing details, and confirmed only after explicit yes."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "15",
+   "category": "ordering",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Hi, I'd like 6 chicken patties for pickup from the Gulshan branch as soon as possible. My name is Hira and I'll pay cash.",
+     "reply": "Hi Hira! Here is your order summary:\n\n- 6 x Chicken Patty - Rs 840\nSubtotal: Rs 840\n*Total: Rs 840* (Cash at Gulshan-e-Iqbal branch, ASAP around 2:30 PM)\n\nShall I confirm this for you? Please reply YES! 🥟",
+     "tools": [
+      {
+       "name": "search_menu",
+       "args": {
+        "category": "Savoury",
+        "query": "chicken patty"
+       },
+       "result": "{\"results\": [{\"sku\": \"SV-CPAT\", \"name\": \"Chicken Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 140, \"left\": 40, \"in_stock\": true}]}, {\"sku\": \"SV-VPAT\", \"name\": \"Vegetable Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 110, \"left\": 20, \"in_stock\": true}]}, {\"sku\": \"SV-PUFF\", \"name\": \"Chicken Pizza Puff\", \"category\": \"Savoury\", \"variants\": [{\"label\": "
+      },
+      {
+       "name": "draft_order",
+       "args": {
+        "items": [
+         {
+          "variant": "each",
+          "sku": "SV-CPAT",
+          "qty": 6
+         }
+        ]
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"fulfilment (delivery or pickup)\", \"when they want it (now/ASAP or a date and time slot)\", \"customer name\", \"payment method (cash on delivery, JazzCash/Easypaisa or bank transfer)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"is_gift\": "
+      },
+      {
+       "name": "update_draft",
+       "args": {
+        "payment_method": "cash",
+        "fulfilment": "pickup",
+        "branch": "Gulshan-e-Iqbal",
+        "customer_name": "Hira"
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"when they want it (now/ASAP or a date and time slot)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"fulfilment\": \"pickup\", \"branch\": \"Gulshan-e-Iqbal\", \"payment_method\": \"Cash on delivery\", \"customer_name\": \"Hira\", \"is_gift\": false, \"dr"
+      },
+      {
+       "name": "update_draft",
+       "args": {
+        "asap": true
+       },
+       "result": "{\"status\": \"ready_for_summary\", \"total\": 840, \"summary_text\": \"Please check your order:\\n- 6 x Chicken Patty - Rs 840\\nSubtotal: Rs 840\\n*Total: Rs 840* - Cash on delivery\\nPickup: Gulshan-e-Iqbal branch\\nWhen: ASAP, around 2:30 PM\\nReply YES to confirm, or tell me what to change.\", \"draft_version\": 3, \"next_step\": \"Send the summary_text to the customer in their language (keep every number) and as"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 29.3,
+     "tokens": 17002
+    },
+    {
+     "user": "hmm let me think about it",
+     "reply": "Take your time, Hira! Just let me know whenever you're ready. 😊",
+     "tools": [],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 6.7,
+     "tokens": 3164
+    },
+    {
+     "user": "what are your opening hours?",
+     "reply": "We're open daily from 9:00 AM, though we close on Fridays between 1:00 PM and 2:30 PM for Jummah. 🕌 \n\nWhenever you'd like to finalize your chicken patties or need anything else, just say the word!",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "branches_hours"
+       },
+       "result": "{\"topic\": \"branches_hours\", \"title\": \"Branches and opening hours\", \"text\": \"| Branch | Address | Landmark | Mon–Thu | Fri | Sat–Sun | Dine-in |\\n|---|---|---|---|---|---|---|\\n| **DHA Phase 6** (main + kitchen) | Shop 12, Lane 4, Bukhari Commercial, DHA Phase 6 | Opposite Bukhari Commercial park | 9 am – 12 am | 9 am – 12 am | 9 am – 12:30 am | Yes, 24 seats, free Wi-Fi |\\n| **Gulshan-e-Iqbal** | "
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 12.2,
+     "tokens": 5907
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 48.2,
+   "tokens": 26073,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "All criteria met: correct facts, proper tool use, language, tone, detail gathering, and safe behavior. No premature confirmation or invented info."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "15",
+   "category": "ordering",
+   "style": "roman",
+   "turns": [
+    {
+     "user": "mujhe 6 chicken patties chahiye Gulshan se pickup, naam Hira, cash",
+     "reply": "Hira ji, aap yeh 6 chicken patties Gulshan branch se kis waqt pickup karna chahein gi? (Aap abhi le rahi hain ya koi time hai?) 😊",
+     "tools": [
+      {
+       "name": "search_menu",
+       "args": {
+        "query": "chicken patty",
+        "category": "Savoury"
+       },
+       "result": "{\"results\": [{\"sku\": \"SV-CPAT\", \"name\": \"Chicken Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 140, \"left\": 40, \"in_stock\": true}]}, {\"sku\": \"SV-VPAT\", \"name\": \"Vegetable Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 110, \"left\": 20, \"in_stock\": true}]}, {\"sku\": \"SV-PUFF\", \"name\": \"Chicken Pizza Puff\", \"category\": \"Savoury\", \"variants\": [{\"label\": "
+      },
+      {
+       "name": "draft_order",
+       "args": {
+        "items": [
+         {
+          "variant": "each",
+          "qty": 6,
+          "sku": "SV-CPAT"
+         }
+        ]
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"fulfilment (delivery or pickup)\", \"when they want it (now/ASAP or a date and time slot)\", \"customer name\", \"payment method (cash on delivery, JazzCash/Easypaisa or bank transfer)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"is_gift\": "
+      },
+      {
+       "name": "update_draft",
+       "args": {
+        "customer_name": "Hira",
+        "branch": "Gulshan-e-Iqbal",
+        "fulfilment": "pickup",
+        "payment_method": "cash"
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"when they want it (now/ASAP or a date and time slot)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"fulfilment\": \"pickup\", \"branch\": \"Gulshan-e-Iqbal\", \"payment_method\": \"Cash on delivery\", \"customer_name\": \"Hira\", \"is_gift\": false, \"dr"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 27.3,
+     "tokens": 13031
+    },
+    {
+     "user": "main sochti hoon",
+     "reply": "Koi baat nahi Hira ji, aap araam se soch lein! Jab bhi decide ho jaye, mujhe bataiyega taake main order confirm kar doon. 🥮",
+     "tools": [],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 6.1,
+     "tokens": 3041
+    },
+    {
+     "user": "aap ki timing kya hai",
+     "reply": "Hira ji, humari timing subah 9:00 AM se raat 11:30 PM tak hai (Gulshan branch ke liye). Aaj Jummah ki wajah se branches 1:00 se 2:30 PM tak band thi, lekin ab khuli hui hain! 🕒",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "branches_hours"
+       },
+       "result": "{\"topic\": \"branches_hours\", \"title\": \"Branches and opening hours\", \"text\": \"| Branch | Address | Landmark | Mon–Thu | Fri | Sat–Sun | Dine-in |\\n|---|---|---|---|---|---|---|\\n| **DHA Phase 6** (main + kitchen) | Shop 12, Lane 4, Bukhari Commercial, DHA Phase 6 | Opposite Bukhari Commercial park | 9 am – 12 am | 9 am – 12 am | 9 am – 12:30 am | Yes, 24 seats, free Wi-Fi |\\n| **Gulshan-e-Iqbal** | "
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 12.9,
+     "tokens": 6308
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 46.3,
+   "tokens": 22380,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant followed all expected rules, used tools correctly, asked for missing details, stayed polite, and did not confirm the order prematurely."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "15",
+   "category": "ordering",
+   "style": "rushed",
+   "turns": [
+    {
+     "user": "6 chicken patties gulshan pickup hira cash",
+     "reply": "Hi Hira! Would you like to pick those 6 chicken patties up today ASAP?",
+     "tools": [
+      {
+       "name": "check_stock",
+       "args": {
+        "sku": "chicken patty",
+        "qty": 6
+       },
+       "result": "{\"error\": \"unknown_sku\", \"hint\": \"use search_menu to find the sku\"}"
+      },
+      {
+       "name": "search_menu",
+       "args": {
+        "query": "chicken patty",
+        "category": "Savoury"
+       },
+       "result": "{\"results\": [{\"sku\": \"SV-CPAT\", \"name\": \"Chicken Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 140, \"left\": 40, \"in_stock\": true}]}, {\"sku\": \"SV-VPAT\", \"name\": \"Vegetable Patty\", \"category\": \"Savoury\", \"variants\": [{\"label\": \"each\", \"price\": 110, \"left\": 20, \"in_stock\": true}]}, {\"sku\": \"SV-PUFF\", \"name\": \"Chicken Pizza Puff\", \"category\": \"Savoury\", \"variants\": [{\"label\": "
+      },
+      {
+       "name": "draft_order",
+       "args": {
+        "items": [
+         {
+          "qty": 6,
+          "sku": "SV-CPAT",
+          "variant": "each"
+         }
+        ]
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"fulfilment (delivery or pickup)\", \"when they want it (now/ASAP or a date and time slot)\", \"customer name\", \"payment method (cash on delivery, JazzCash/Easypaisa or bank transfer)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"is_gift\": "
+      },
+      {
+       "name": "update_draft",
+       "args": {
+        "fulfilment": "pickup",
+        "customer_name": "Hira",
+        "branch": "Gulshan-e-Iqbal",
+        "payment_method": "cash"
+       },
+       "result": "{\"status\": \"incomplete\", \"missing\": [\"when they want it (now/ASAP or a date and time slot)\"], \"lines\": [{\"name\": \"Chicken Patty\", \"qty\": 6, \"unit_price\": 140, \"line_total\": 840}], \"subtotal\": 840, \"delivery_fee\": 0, \"discount\": 0, \"total\": 840, \"advance_due\": 0, \"fulfilment\": \"pickup\", \"branch\": \"Gulshan-e-Iqbal\", \"payment_method\": \"Cash on delivery\", \"customer_name\": \"Hira\", \"is_gift\": false, \"dr"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 29.8,
+     "tokens": 15790
+    },
+    {
+     "user": "wait",
+     "reply": "No problem, take your time! Let me know whenever you're ready.",
+     "tools": [],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 6.0,
+     "tokens": 3038
+    },
+    {
+     "user": "closing time?",
+     "reply": "Our branches are open until 11:30 PM tonight (Gulshan-e-Iqbal), though we close briefly on Fridays. Would you like to finish your order for those Chicken Patties? 🥐",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "branches_hours"
+       },
+       "result": "{\"topic\": \"branches_hours\", \"title\": \"Branches and opening hours\", \"text\": \"| Branch | Address | Landmark | Mon–Thu | Fri | Sat–Sun | Dine-in |\\n|---|---|---|---|---|---|---|\\n| **DHA Phase 6** (main + kitchen) | Shop 12, Lane 4, Bukhari Commercial, DHA Phase 6 | Opposite Bukhari Commercial park | 9 am – 12 am | 9 am – 12 am | 9 am – 12:30 am | Yes, 24 seats, free Wi-Fi |\\n| **Gulshan-e-Iqbal** | "
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 13.5,
+     "tokens": 5882
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 49.3,
+   "tokens": 24710,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant followed all rules, asked for missing details, used tools correctly, maintained warm tone, and never confirmed without explicit yes."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "16",
+   "category": "ordering",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Frozen theme cake tomorrow",
+     "reply": "Our custom and fondant cakes need 48 hours' notice, so we won't be able to prepare a Frozen theme cake by tomorrow unfortunately. Would you like to check out one of our delicious standard celebration cakes instead? 🎂",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "custom cakes"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 10.5,
+     "tokens": 5409
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 10.5,
+   "tokens": 5409,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant followed rules, used tool, responded in correct language, warm tone, no missing details, safe behavior."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "16",
+   "category": "ordering",
+   "style": "polite",
+   "turns": [
+    {
+     "user": "Hello, could I get a frozen-themed cake for tomorrow please?",
+     "reply": "Hello! For our custom Frozen-themed cakes, we usually need 48 hours' notice so our decorators can make it look magical. \n\nSince you need it for tomorrow, we wouldn't be able to do a custom fondant design in time—but we do have gorgeous standard celebration cakes available for tomorrow if you'd like to check those out? 🎂",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "custom_cakes"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 10.4,
+     "tokens": 5459
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 10.4,
+   "tokens": 5459,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant followed rules, used tool, responded in correct language, warm tone, no missing detail needed, safe behavior."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "16",
+   "category": "ordering",
+   "style": "rushed",
+   "turns": [
+    {
+     "user": "frozen theme cake kal chahiye",
+     "reply": "Aww, a Frozen theme cake sounds so magical! ❄️ However, custom theme cakes need 48 hours' notice, so we won't be able to craft it by tomorrow. Would you like to check out one of our ready-to-go birthday cakes instead?",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "custom_cakes"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 11.4,
+     "tokens": 5424
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 11.4,
+   "tokens": 5424,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": false,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": false,
+    "reason": "Assistant used correct facts and tools, but responded in English instead of Roman Urdu, violating language criterion."
+   },
+   "judged": true,
+   "passed": false
+  },
+  {
+   "case": "17",
+   "category": "handoff",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Theme cake for 15 Nov, 20 guests",
+     "reply": "For 20 guests, a 4 lb cake is ideal! 🎂 \n\nCould you share what theme or design you have in mind for November 15th?",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "delivery"
+       },
+       "result": "{\"topic\": \"delivery\", \"title\": \"Delivery zones, fees and rules\", \"text\": \"- **Delivery hours:** 10 am – 11 pm every day. Last order at 10:30 pm.\\n- **Minimum order:** Rs 1,000\\n- **Free delivery:** on orders of Rs 4,000 or more\\n- **Scheduled delivery:** up to 7 days ahead, in 1-hour slots between 11 am and 11 pm\\n- **Riders:** our own riders. We're also on Foodpanda, where prices are about 10% hi"
+      },
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "other"
+       },
+       "result": "{\"topic\": \"other\", \"title\": \"Franchise, jobs, classes, privacy\", \"text\": \"- **Franchise:** not offered right now.\\n- **Jobs:** send a CV to jobs@sweetcrumbs.example.\\n- **Baking classes:** not offered.\\n- **Privacy:** phone numbers and addresses are used only for orders and never shared.\\n\\n---\"}"
+      },
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "ordering_rules"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 24.8,
+     "tokens": 12440
+    },
+    {
+     "user": "Spiderman theme, chocolate, 2 tiers, delivery to DHA Phase 5, name Hira, pay by bank transfer",
+     "reply": "Hi Hira! For a 2-tier custom Spiderman cake, we need about 5 days' notice. I’ve shared your request with our team, and someone will reply here shortly to help you out! 🕷️",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "branches_hours"
+       },
+       "result": "{\"topic\": \"branches_hours\", \"title\": \"Branches and opening hours\", \"text\": \"| Branch | Address | Landmark | Mon–Thu | Fri | Sat–Sun | Dine-in |\\n|---|---|---|---|---|---|---|\\n| **DHA Phase 6** (main + kitchen) | Shop 12, Lane 4, Bukhari Commercial, DHA Phase 6 | Opposite Bukhari Commercial park | 9 am – 12 am | 9 am – 12 am | 9 am – 12:30 am | Yes, 24 seats, free Wi-Fi |\\n| **Gulshan-e-Iqbal** | "
+      },
+      {
+       "name": "check_delivery_area",
+       "args": {
+        "text": "DHA Phase 5"
+       },
+       "result": "{\"status\": \"served\", \"minimum_order\": 1000, \"free_delivery_from\": 4000, \"area\": \"DHA\", \"zone\": \"A\", \"fee\": 150, \"minutes\": [40, 60], \"note\": \"all phases\"}"
+      },
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "other"
+       },
+       "result": "{\"topic\": \"other\", \"title\": \"Franchise, jobs, classes, privacy\", \"text\": \"- **Franchise:** not offered right now.\\n- **Jobs:** send a CV to jobs@sweetcrumbs.example.\\n- **Baking classes:** not offered.\\n- **Privacy:** phone numbers and addresses are used only for orders and never shared.\\n\\n---\"}"
+      },
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "ordering_rules"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      },
+      {
+       "name": "escalate_to_human",
+       "args": {
+        "reason": "2-tier custom Spiderman theme cake inquiry",
+        "summary": "Customer Hira wants a 2-tier chocolate Spiderman theme cake with delivery to DHA Phase 5 and bank transfer payment. Noted that tiered cakes need 5 days notice. Escalating to staff for custom quote and details.",
+        "priority": "normal"
+       },
+       "result": "{\"escalated\": true, \"id\": 1, \"hint\": \"tell the customer once that our staff will reply in this chat; do not promise outcomes or refunds\"}"
+      }
+     ],
+     "escalated": true,
+     "provider": "google_genai",
+     "seconds": 38.9,
+     "tokens": 19945
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 63.7,
+   "tokens": 32385,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant collected details, gave notice estimate, escalated, no order placed, correct tools used, language and tone appropriate, safe behavior."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "17",
+   "category": "handoff",
+   "style": "polite",
+   "turns": [
+    {
+     "user": "Hello, I'd like a theme cake for 15 November for about 20 guests please.",
+     "reply": "That sounds lovely! For a custom theme cake, we need about 48 hours' notice, so 15 November gives us plenty of time. \n\nCould you share what theme or design you have in mind, your preferred flavor, and whether you'd like it delivered or picked up?",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "custom cakes"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 11.6,
+     "tokens": 5459
+    },
+    {
+     "user": "Spiderman theme, chocolate, 2 tiers, delivery to DHA Phase 5, name Hira, pay by bank transfer",
+     "reply": "Thank you for all those details! Since it's a 2-tier custom cake, I've passed your request along to our team with all the notes. Someone will review it and reply right here in the chat shortly to confirm the design and final price for you.",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "custom cakes"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      },
+      {
+       "name": "check_delivery_area",
+       "args": {
+        "text": "DHA Phase 5"
+       },
+       "result": "{\"status\": \"served\", \"minimum_order\": 1000, \"free_delivery_from\": 4000, \"area\": \"DHA\", \"zone\": \"A\", \"fee\": 150, \"minutes\": [40, 60], \"note\": \"all phases\"}"
+      },
+      {
+       "name": "escalate_to_human",
+       "args": {
+        "summary": "Customer wants a 2-tier Spiderman theme chocolate cake for 20 guests on 15 November, with name 'Hira', delivery to DHA Phase 5, and bank transfer payment. Needs design confirmation and price quote from staff.",
+        "reason": "Custom 2-tier Spiderman theme cake order inquiry",
+        "priority": "normal"
+       },
+       "result": "{\"escalated\": true, \"id\": 1, \"hint\": \"tell the customer once that our staff will reply in this chat; do not promise outcomes or refunds\"}"
+      }
+     ],
+     "escalated": true,
+     "provider": "google_genai",
+     "seconds": 25.2,
+     "tokens": 12090
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 36.8,
+   "tokens": 17549,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": false,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": false,
+    "reason": "Assistant omitted the required estimate, violating the facts criterion."
+   },
+   "judged": true,
+   "passed": false
+  },
+  {
+   "case": "17",
+   "category": "handoff",
+   "style": "roman",
+   "turns": [
+    {
+     "user": "15 November ko theme cake chahiye, 20 log honge",
+     "reply": "Theme cake ke liye 48 hours ka notice chahiye hota hai, toh 15 November ke liye aapka order araam se ho jayega! 🎂 \n\nAapko kis tarah ka theme ya design chahiye, aur flavour kon sa pasand hai?",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "notice periods"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 11.4,
+     "tokens": 5425
+    },
+    {
+     "user": "Spiderman theme, chocolate, 2 tiers, delivery to DHA Phase 5, name Hira, pay by bank transfer",
+     "reply": "Maine ye sab details hamari team ko bhej di hain, aur hamara staff jald hi aapse is chat mein rabta karega! 😊",
+     "tools": [
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "custom cakes price estimate"
+       },
+       "result": "{\"topic\": \"ordering_rules\", \"title\": \"Ordering rules and notice periods\", \"text\": \"- **Same-day standard cakes:** order by 9 pm.\\n- **Custom or fondant cakes:** 48 hours' notice and a 50% advance.\\n- **Tiered or wedding cakes:** 5 days' notice. Handled by the events team (human).\\n- **Eggless or sugar-free cakes:** 24 hours' notice.\\n- **Bulk orders:** over Rs 25,000, more than 50 boxes, or for we"
+      },
+      {
+       "name": "escalate_to_human",
+       "args": {
+        "reason": "Customer wants a 2-tier custom Spiderman theme cake for 20 people on 15 November, chocolate flavour, delivery to DHA Phase 5, name Hira, payment by bank. Tiered cakes require staff coordination.",
+        "priority": "normal",
+        "summary": "Theme: Spiderman, 2 tiers, 20 servings, Chocolate flavour, Date: 15 November, Delivery: DHA Phase 5 (Hira), Payment: Bank transfer. Notice requirement met (more than 48 hours)."
+       },
+       "result": "{\"escalated\": true, \"id\": 1, \"hint\": \"tell the customer once that our staff will reply in this chat; do not promise outcomes or refunds\"}"
+      }
+     ],
+     "escalated": true,
+     "provider": "google_genai",
+     "seconds": 19.8,
+     "tokens": 8956
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 31.2,
+   "tokens": 14381,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": false,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": false,
+    "reason": "Assistant didn't provide a price estimate, violating the expected facts requirement."
+   },
+   "judged": true,
+   "passed": false
+  },
+  {
+   "case": "18",
+   "category": "ordering",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Eggless chocolate cake today",
+     "reply": "Our eggless cakes usually require a 24-hour notice, but we do have delicious regular Chocolate Fudge in stock today! Would you like one of those, or shall we arrange an eggless cake for tomorrow instead? 🎂",
+     "tools": [
+      {
+       "name": "search_menu",
+       "args": {
+        "category": "Cakes",
+        "query": "chocolate cake"
+       },
+       "result": "{\"results\": [{\"sku\": \"CK-CHOC\", \"name\": \"Chocolate Fudge\", \"category\": \"Cakes\", \"notes\": \"Best seller\", \"variants\": [{\"label\": \"1 lb\", \"price\": 1700, \"left\": 6, \"in_stock\": true}, {\"label\": \"2 lb\", \"price\": 3200, \"left\": 4, \"in_stock\": true}, {\"label\": \"3 lb\", \"price\": 4600, \"left\": 2, \"in_stock\": true}], \"flags\": [\"eggless possible (+Rs 300/lb, 24 h notice)\"]}, {\"sku\": \"CK-SFCH\", \"name\": \"Sugar-F"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 13.1,
+     "tokens": 6348
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 13.1,
+   "tokens": 6348,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant matched facts, used tool, appropriate language, warm tone, asked no unnecessary details, and remained safe."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "18",
+   "category": "ordering",
+   "style": "polite",
+   "turns": [
+    {
+     "user": "Could I get an eggless chocolate cake today please?",
+     "reply": "Our Chocolate Fudge cake can be made eggless, but we do need 24 hours' notice for it as it's freshly baked to order 🍰 Would you like to check out our regular Chocolate Fudge cake available for today instead?",
+     "tools": [
+      {
+       "name": "search_menu",
+       "args": {
+        "query": "chocolate",
+        "category": "Cakes"
+       },
+       "result": "{\"results\": [{\"sku\": \"CK-CHOC\", \"name\": \"Chocolate Fudge\", \"category\": \"Cakes\", \"notes\": \"Best seller\", \"variants\": [{\"label\": \"1 lb\", \"price\": 1700, \"left\": 6, \"in_stock\": true}, {\"label\": \"2 lb\", \"price\": 3200, \"left\": 4, \"in_stock\": true}, {\"label\": \"3 lb\", \"price\": 4600, \"left\": 2, \"in_stock\": true}], \"flags\": [\"eggless possible (+Rs 300/lb, 24 h notice)\"]}, {\"sku\": \"CK-SFCH\", \"name\": \"Sugar-F"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 11.7,
+     "tokens": 5685
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 11.7,
+   "tokens": 5685,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "Assistant followed all expected facts, used the tool, responded in correct language, warm tone, asked for missing info, and stayed safe."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "18",
+   "category": "ordering",
+   "style": "rushed",
+   "turns": [
+    {
+     "user": "eggless choc cake aaj chahiye",
+     "reply": "Ji, hamaray chocolate cakes mein eggless option 24 hours notice par hota hai, aur aaj ready stock mein nahi hain 🙁 Humare paas regular Chocolate Fudge available hai (1 lb Rs 1,700, 2 lb Rs 3,200), ya phir agar aap chahein toh kal ke liye eggless order book karwa sakte hain?",
+     "tools": [
+      {
+       "name": "search_menu",
+       "args": {
+        "category": "Cakes",
+        "query": "chocolate cake"
+       },
+       "result": "{\"results\": [{\"sku\": \"CK-CHOC\", \"name\": \"Chocolate Fudge\", \"category\": \"Cakes\", \"notes\": \"Best seller\", \"variants\": [{\"label\": \"1 lb\", \"price\": 1700, \"left\": 6, \"in_stock\": true}, {\"label\": \"2 lb\", \"price\": 3200, \"left\": 4, \"in_stock\": true}, {\"label\": \"3 lb\", \"price\": 4600, \"left\": 2, \"in_stock\": true}], \"flags\": [\"eggless possible (+Rs 300/lb, 24 h notice)\"]}, {\"sku\": \"CK-SFCH\", \"name\": \"Sugar-F"
+      },
+      {
+       "name": "get_info",
+       "args": {
+        "topic": "allergens"
+       },
+       "result": "{\"topic\": \"allergens\", \"title\": \"Allergens\", \"text\": \"- Common allergens in our products: wheat (gluten), eggs, milk, nuts, soy.\\n- Our kitchen handles almonds, pistachios and walnuts, so **we can't guarantee any product is nut-free.**\\n- No gluten-free products. No vegan cakes.\"}"
+      }
+     ],
+     "escalated": false,
+     "provider": "google_genai",
+     "seconds": 17.2,
+     "tokens": 10193
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 17.2,
+   "tokens": 10193,
+   "provider": "google_genai",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": true,
+    "details": true,
+    "safe": true,
+    "pass": true,
+    "reason": "All criteria satisfied, assistant matched expected behavior."
+   },
+   "judged": true,
+   "passed": true
+  },
+  {
+   "case": "22",
+   "category": "handoff",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Cake crushed aaya",
+     "reply": "Sorry, we are having a technical problem. Our team will reply to you here shortly.",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 76.5,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 76.5,
+   "tokens": 0,
+   "provider": "",
+   "status": "ok",
+   "hard_failures": [],
+   "judge": {
+    "facts": true,
+    "tools": true,
+    "language": true,
+    "tone": false,
+    "details": false,
+    "safe": true,
+    "pass": false,
+    "reason": "Assistant failed to apologize, request photo, and refer to care team; tone and details were missing."
+   },
+   "judged": true,
+   "passed": false
+  },
+  {
+   "case": "22",
+   "category": "handoff",
+   "style": "polite",
+   "turns": [
+    {
+     "user": "Hello, my cake arrived crushed, could you help please?",
+     "reply": "Sorry, we are having a technical problem. Our team will reply to you here shortly.",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 3.7,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 3.7,
+   "tokens": 0,
+   "provider": "",
+   "status": "error",
+   "hard_failures": [],
+   "judge": {},
+   "passed": false,
+   "note": "the model was unavailable or crashed during this run"
+  },
+  {
+   "case": "22",
+   "category": "handoff",
+   "style": "angry",
+   "turns": [
+    {
+     "user": "my cake arrived completely crushed!! this is unacceptable",
+     "reply": "Sorry, we are having a technical problem. Our team will reply to you here shortly.",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 5.0,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 5.0,
+   "tokens": 0,
+   "provider": "",
+   "status": "error",
+   "hard_failures": [],
+   "judge": {},
+   "passed": false,
+   "note": "the model was unavailable or crashed during this run"
+  },
+  {
+   "case": "23",
+   "category": "handoff",
+   "style": "original",
+   "turns": [
+    {
+     "user": "Manager se baat karao",
+     "reply": "Sorry, we are having a technical problem. Our team will reply to you here shortly.",
+     "tools": [],
+     "escalated": true,
+     "provider": "",
+     "seconds": 5.0,
+     "tokens": 0
+    }
+   ],
+   "bot": "google_genai:gemini-flash-lite-latest",
+   "judge_model": "groq:openai/gpt-oss-20b",
+   "seconds": 5.0,
+   "tokens": 0,
+   "provider": "",
+   "status": "error",
+   "hard_failures": [],
+   "judge": {},
+   "passed": false,
+   "note": "the model was unavailable or crashed during this run"
+  }
+ ]
+}

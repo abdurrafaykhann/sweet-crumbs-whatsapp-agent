@@ -93,7 +93,9 @@ How to read this: the strict pass rate is the number to quote, and it is not yet
 | Gemini flash-lite | 126 | 63% | 94% | 23.5 s |
 | Groq gpt-oss-120b | not run yet: Groq's daily token quota was used up by judging | | | |
 
-Next: run the Groq half on a fresh quota day (`python -m evals.runner --rewordings 2 --model groq:openai/gpt-oss-120b --delay 3 --tag groq`, in batches with `--category`) and fix the ordering-flow and handoff-wording failures listed in the report, then re-run.
+**After the first round of fixes (custom cakes now collect details before handoff, damage reports ask for a photo, weekend-only items are never "not on the menu"; `evals/results/gemini-after-fix.md`):** re-running only the ordering and handoff cases gave **ordering 11/12 (92%, was 44%)** and **handoff 4/7 (57%, was 47%)**, with every deterministic check passing (19/19). Gemini's daily quota ended that run early (3 conversations lost), so it is a partial re-run, not a full table. The remaining handoff failures were a missing price estimate when a theme-cake request is handed to staff (a prompt line I have since tightened, not yet re-measured) and one crushed-cake reply that skipped the apology.
+
+Next: re-run everything on a fresh quota day (`python -m evals.runner --rewordings 2 --model google_genai:gemini-flash-lite-latest --delay 4 --tag gemini`), then the Groq half (`--model groq:openai/gpt-oss-120b`, in batches with `--category`), and replace the tables above with the full results.
 
 ## Design trade-offs and roadmap
 Choices made on purpose for a free, demo-ready build, and what comes next:
