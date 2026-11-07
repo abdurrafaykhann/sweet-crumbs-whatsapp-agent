@@ -18,3 +18,4 @@ evals/.cache/
 dashboard/node_modules/
 evals/*.log
 evals/nohup.out
+*.db.memory
