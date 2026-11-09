@@ -267,6 +267,23 @@ class Message(Base):
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
 
 
+class MessageTag(Base):
+    """Intent and mood the classifier (app/classifier.py) gave an inbound customer message. A separate table, so existing
+    databases need no ALTER: create_all adds it."""
+    __tablename__ = "message_tags"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    message_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    phone: Mapped[str] = mapped_column(String(20), index=True)
+    intent: Mapped[str] = mapped_column(String(24))
+    mood: Mapped[str] = mapped_column(String(10))
+    intent_conf: Mapped[float] = mapped_column(Float, default=0.0)
+    mood_conf: Mapped[float] = mapped_column(Float, default=0.0)
+    language: Mapped[str] = mapped_column(String(12), default="")
+    flagged: Mapped[bool] = mapped_column(Boolean, default=False)            # this tag opened an escalation
+    model: Mapped[str] = mapped_column(String(40), default="")
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime, default=utcnow)
+
+
 class LlmUsage(Base):
     """One row per model call (successful or not): which provider answered, tokens, latency, errors, fallbacks."""
     __tablename__ = "llm_usage"

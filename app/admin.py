@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from . import analytics, clock, devtools, events, handoff, kv, orders, whatsapp
+from . import analytics, classifier, clock, devtools, events, handoff, kv, orders, whatsapp
 from . import models as m
 from .database import session_scope
 
@@ -179,7 +179,8 @@ def conversations(q: str | None = None, escalated: bool | None = None):
             cust = s.query(m.Customer).filter(m.Customer.phone == phone).one_or_none()
             conv = s.get(m.Conversation, phone)
             esc = s.query(m.Escalation).filter(m.Escalation.phone == phone, m.Escalation.status == "open").order_by(m.Escalation.id.desc()).first()
-            rows.append({"phone": phone, "name": cust.name if cust else "", "last_text": last.text[:140], "last_role": last.role, "last_id": last.id,
+            tag = s.query(m.MessageTag).filter(m.MessageTag.phone == phone).order_by(m.MessageTag.id.desc()).first()
+            rows.append({"tag": classifier.tag_for_dashboard(tag), "phone": phone, "name": cust.name if cust else "", "last_text": last.text[:140], "last_role": last.role, "last_id": last.id,
                          "last_at": last.created_at.isoformat(timespec="minutes"), "bot_active": not (conv and conv.escalated),
                          "open_escalation": {"id": esc.id, "reason": esc.reason, "priority": esc.priority} if esc else None})
         if q:
@@ -197,10 +198,11 @@ def conversation(phone: str):
         cust = s.query(m.Customer).filter(m.Customer.phone == phone).one_or_none()
         opens = s.query(m.Escalation).filter(m.Escalation.phone == phone, m.Escalation.status == "open").all()
         state = devtools.chat_state(phone)
+        tags = {t.message_id: t for t in s.query(m.MessageTag).filter(m.MessageTag.message_id.in_([x.id for x in msgs]))}
         return {"phone": phone, "customer": {"name": cust.name, "language": cust.language, "points": cust.points} if cust else None,
                 "bot_active": state["bot_active"], "draft": state["draft"], "orders": state["orders"],
                 "escalations": [handoff.escalation_brief(s, e) for e in opens],
-                "messages": [{"id": x.id, "role": x.role, "text": x.text, "tools": x.tools or [], "attachment": x.attachment or None, "provider": x.provider,
+                "messages": [{"tag": classifier.tag_for_dashboard(tags.get(x.id)), "id": x.id, "role": x.role, "text": x.text, "tools": x.tools or [], "attachment": x.attachment or None, "provider": x.provider,
                               "latency_ms": x.latency_ms, "at": x.created_at.isoformat(timespec="minutes")} for x in reversed(msgs)]}
 
 
