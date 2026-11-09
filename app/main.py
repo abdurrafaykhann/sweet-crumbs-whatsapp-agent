@@ -13,9 +13,9 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from . import admin, agent, devtools, handoff, inbound, kv, whatsapp
+from . import admin, agent, classifier, devtools, handoff, inbound, kv, whatsapp
 from . import models as m
-from .database import get_engine
+from .database import get_engine, session_scope
 
 log = logging.getLogger("sweetcrumbs")
 STATIC = pathlib.Path(__file__).parent / "static"
@@ -83,7 +83,16 @@ def chat(c: Chat):
     with kv.customer_lock(c.phone, timeout=60) as got:  # one message at a time per customer, same lock as the webhook
         if not got:
             raise HTTPException(503, "still answering the previous message")
-        r = agent.respond(c.phone, c.text)
+        if classifier.enabled():  # same optional tagging step as the WhatsApp path (inbound.process_incoming)
+            with session_scope() as s:
+                msg = m.Message(phone=c.phone, role="customer", text=c.text, created_at=agent.clock.now())
+                s.add(msg)
+                s.flush()
+                message_id = msg.id
+            classifier.handle_inbound(c.phone, c.text, message_id, lambda phone, text: None)
+            r = agent.respond(c.phone, c.text, log_customer=False)
+        else:
+            r = agent.respond(c.phone, c.text)
     return {"reply": r.text, "tools": [t["name"] for t in r.tools], "escalated": r.escalated, "silent": r.silent, "provider": r.provider}
 
 

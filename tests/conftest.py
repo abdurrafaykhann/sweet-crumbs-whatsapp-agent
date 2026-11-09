@@ -8,6 +8,12 @@ from app import database, seed
 from app import models as m
 
 
+@pytest.fixture(autouse=True)
+def _no_live_classifier(monkeypatch):
+    """A real CLASSIFIER_URL in .env must not make tests call a live service; test_classifier.py sets its own."""
+    monkeypatch.setenv("CLASSIFIER_URL", "")
+
+
 @pytest.fixture(scope="session")
 def seeded():
     url = os.environ.get("TEST_DATABASE_URL") or "sqlite:///" + os.path.join(tempfile.mkdtemp(), "sc.db").replace("\\", "/")
