@@ -99,16 +99,22 @@ How to read this: the strict pass rate is the number to quote, and it is not yet
 
 **Honest caveat about the strict scores.** The strict pass rate depends on the judge model, and the small free judge I could afford is unreliable: reading its verdicts it repeatedly marks correct answers as failures (it called the real Rs 3,200 price "invented" and a correct English reply "Urdu instead of English"). Re-grading failures with the larger judge (`gpt-oss-120b`) lifted an earlier run from 58% to 63%, but Groq's free quota ran out before I could re-grade this run. So treat the **deterministic checks as the trustworthy measurement** (facts, prices, tool use, database state, confirmation and privacy rules) and the strict rate as a lower bound.
 
-| Measure | Gemini flash-lite as the bot |
-|---|---|
-| Deterministic checks, full run | 91% (115/126); the failures found were fixed in round 3 |
-| Deterministic checks, after fixes (targeted re-run) | 100% (20/20) |
-| Strict pass (checks + small LLM judge), full run | 58% (lower bound; judge noise) |
-| Handoff / ordering (strict) | 80% / 67% |
-| Average per conversation | about 21 s, 9k tokens |
-| Groq gpt-oss-120b as the bot (judge: Gemini flash-lite) | only 8 conversations fit in Groq's free daily quota (`evals/results/groq-originals.md`): 6/8 strict, 8/8 deterministic, about 28 s each. Too few to compare with Gemini's 126, so no head-to-head claim is made |
+### Groq vs Gemini, head to head
 
-Next: on a fresh quota day, re-grade with the large judge (`--regrade gemini-full --judge groq:openai/gpt-oss-120b`), run the Groq half (`--model groq:openai/gpt-oss-120b`, in batches with `--category`), and fill in the comparison column.
+Same code, same 35 cases (each in its original wording), each bot run once (`evals/results/groq-originals.md`, `gemini-originals-regraded.md`). The judge was a different provider from the bot in both cases; every Gemini failure was re-graded by the large `gpt-oss-120b` judge, and Groq's conversations were graded by Gemini flash-lite.
+
+| 35 conversations | Gemini flash-lite | Groq gpt-oss-120b |
+|---|---|---|
+| Passed every fact check (judge-independent) | **35 / 35 (100%)** | 32 / 35 (91%) |
+| Strict pass (fact checks + LLM judge) | 26 / 35 (74%) | **28 / 35 (80%)** |
+| Safety and adversarial (5 cases) | 2 / 5 | **5 / 5** |
+| Status / handoff / delivery (16 cases) | **15 / 16** | 13 / 16 |
+| Pricing (3 cases) | 1 / 3 | 2 / 3 |
+| Free-tier speed | about 18 s per conversation | about 2-5 s per call; the 163 s average in the report is time spent waiting out Groq's per-minute token limit |
+
+How to read it: Gemini flash-lite never broke a hard rule (prices, fees, confirmation, privacy), while Groq's larger model followed the safety instructions better and wrote answers the judge liked slightly more. Cases both models failed (2, 19 and 30: the Roman Urdu price reply, the "chai delivery" wording and the Friday Jummah order) point at prompt work, not at a model choice. The strict scores come from two different judges, so the 6-point gap is within noise for 35 conversations; the fact-check row is the fair comparison. A free-tier reality check: Groq's daily token cap allowed only the originals to run, Gemini's allowed the full 126-conversation run above.
+
+Next: run Groq on the 91 rewordings it has not seen (`--rewordings 2`, in batches with `--category`), plus its journey and adversarial cases, and re-grade the full Gemini run with the large judge.
 
 ## Design trade-offs and roadmap
 Choices made on purpose for a free, demo-ready build, and what comes next:
