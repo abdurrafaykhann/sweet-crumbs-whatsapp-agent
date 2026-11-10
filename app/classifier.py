@@ -1,5 +1,5 @@
 """Optional intent + mood tagging of inbound customer messages, using the Roman Urdu classifier service
-(https://github.com/<you>/roman-urdu-classifier, endpoint POST /classify).
+(https://github.com/abdurrafaykhann/roman-urdu-classifier, endpoint POST /classify).
 
 Off unless CLASSIFIER_URL is set. If the service is slow, down or returns garbage the bot behaves exactly as before: tagging
 never blocks or breaks a customer conversation.
