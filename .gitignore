@@ -19,3 +19,8 @@ dashboard/node_modules/
 evals/*.log
 evals/nohup.out
 *.db.memory
+
+*.db-shm
+*.db-wal
+*.db.memory-shm
+*.db.memory-wal
