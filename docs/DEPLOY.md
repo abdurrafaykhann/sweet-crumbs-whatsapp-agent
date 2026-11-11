@@ -3,6 +3,13 @@
 The app is a stateless container (FastAPI) plus **PostgreSQL** (orders, sessions, messages) and **Redis** (message de-duplication, rate limits, per-customer locks).
 It needs a host that runs a long-lived container; Vercel's serverless functions are a poor fit for the background reply tasks.
 
+## Option 0: free, no card: Vercel + Supabase (what the live demo uses)
+1. Supabase: create a free project and copy the **Session pooler** connection string (port 5432).
+2. Vercel: import the GitHub repo as a new project (framework FastAPI). `index.py` is the entry point and `vercel.json` raises the function limit to 60 s.
+3. Environment variables. Plain: `KV_BACKEND=db`, `INLINE_REPLIES=1`, `SEED_ON_START=1`, `ENABLE_DEV_CHAT=1`, `ENV=production`, `LLM_MAX_WAIT=8`, `DB_POOL_SIZE=2`. Sensitive: `DATABASE_URL`, `GROQ_API_KEY`, `GEMINI_API_KEY`, `ADMIN_PASSWORD`, `DEMO_PASSWORD`, `JWT_SECRET` (16+ characters).
+4. Settings > Deployment Protection: set Vercel Authentication to Disabled so visitors can open the site.
+Why the extra variables: a serverless function has no shared memory and stops once it has answered, so `KV_BACKEND=db` keeps message de-duplication, rate limits, the per-customer queue and locks in the database, and `INLINE_REPLIES=1` makes the WhatsApp webhook finish its reply before answering Meta. The first request after a quiet period is slower (cold start plus database connection).
+
 ## Option A: everything on your machine (needs Docker Desktop running)
 ```bash
 docker compose up --build        # app + postgres + redis; seeds the demo data on first start; http://localhost:8000/health

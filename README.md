@@ -2,6 +2,11 @@
 
 An AI agent that takes bakery orders on WhatsApp in **English, Roman Urdu and Urdu script**, built as a portfolio project for a fictional Karachi bakery. It understands meaning (no keyword matching), collects every detail before drafting an order, enforces the business rules in code, and never places an order without an explicit "yes" in a later message.
 
+## Live demo
+- **Chat with the bot:** https://sweet-crumbs-indol.vercel.app/ui (pick a demo customer, or type any phone number; works in English, Roman Urdu and Urdu script)
+- **Owner dashboard:** https://sweet-crumbs-indol.vercel.app/admin/ (use the read-only demo login; the password is in the repository description / my message)
+- Hosted free on Vercel with a Supabase Postgres database. The AI runs on free tiers (Groq, with Gemini as fallback), so under heavy use it may answer slowly or hand over to a human.
+
 ## Highlights
 - **Speaks the customer's language:** English, Roman Urdu and Urdu script, including mixed messages, with a warm shop-manager tone.
 - **Rules live in code, not in the prompt:** prices, delivery zones and fees, minimum order, notice times, Friday prayer break and the 50% advance are tested Python. The model asks tools instead of doing maths, so it cannot invent a price.
