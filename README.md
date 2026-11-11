@@ -4,7 +4,7 @@ An AI agent that takes bakery orders on WhatsApp in **English, Roman Urdu and Ur
 
 ## Live demo
 - **Chat with the bot:** https://sweet-crumbs-indol.vercel.app/ui (pick a demo customer, or type any phone number; works in English, Roman Urdu and Urdu script)
-- **Owner dashboard:** https://sweet-crumbs-indol.vercel.app/admin/ (use the read-only demo login; the password is in the repository description / my message)
+- **Owner dashboard:** https://sweet-crumbs-indol.vercel.app/admin/ (read-only demo login: password `admin123`; you can look at everything but not change anything)
 - Hosted free on Vercel with a Supabase Postgres database. The AI runs on free tiers (Groq, with Gemini as fallback), so under heavy use it may answer slowly or hand over to a human.
 
 ## Highlights
