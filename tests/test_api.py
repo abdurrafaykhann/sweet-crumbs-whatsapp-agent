@@ -94,3 +94,22 @@ def test_rate_limit_per_customer(api, monkeypatch):
     for i in range(4):
         client.post("/webhook", json=payload(f"wamid.r{i}", f"msg {i}", sender="923005550000"))
     assert len(sent) == 2
+
+
+def test_database_backed_kv_works_like_redis(db, monkeypatch):
+    """KV_BACKEND=db keeps dedupe, rate limits, queues and locks in the database (needed on serverless hosting)."""
+    from app import kv
+    kv.set_client(None)
+    monkeypatch.setenv("KV_BACKEND", "db")
+    assert kv.backend() == "db"
+    assert kv.first_time("wamid.1") and not kv.first_time("wamid.1")           # a redelivery is ignored
+    assert all(kv.allow("c", 3, 60) for _ in range(3)) and not kv.allow("c", 3, 60)
+    kv.queue_push("q:c", "a")
+    kv.queue_push("q:c", "b")
+    assert kv.queue_len("q:c") == 2 and kv.queue_pop_all("q:c") == ["a", "b"] and kv.queue_pop_all("q:c") == []
+    token = kv.try_lock("lock:c", 60)
+    assert token and kv.try_lock("lock:c", 60) is None                          # held by someone else
+    kv.unlock("lock:c", "not-the-owner")
+    assert kv.try_lock("lock:c", 60) is None
+    kv.unlock("lock:c", token)
+    assert kv.try_lock("lock:c", 60)

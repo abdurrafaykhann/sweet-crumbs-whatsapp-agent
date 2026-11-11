@@ -1,0 +1,9 @@
+.venv
+evals
+tests
+docs
+dashboard/node_modules
+dashboard/src
+*.db
+*.memory
+.env

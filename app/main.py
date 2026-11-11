@@ -6,9 +6,11 @@ endpoints are switched off (unless ENABLE_DEV_CHAT=1)."""
 import logging
 import os
 import pathlib
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -39,12 +41,37 @@ def require_dev():
         raise HTTPException(404, "not found")
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
+_ready = False
+_ready_lock = threading.Lock()
+
+
+def prepare_database() -> None:
+    """Create the tables and, with SEED_ON_START=1, load the demo data when the database is empty."""
+    global _ready
     m.Base.metadata.create_all(get_engine())
     if os.environ.get("SEED_ON_START") == "1":  # one command seeds the demo data and starts everything (docker compose)
         from .seed import seed_if_empty
         seed_if_empty()
+    _ready = True
+
+
+def ensure_ready() -> None:
+    """Serverless hosts may not run the startup hook: the first request prepares the database instead (once per instance)."""
+    if _ready:
+        return
+    with _ready_lock:
+        if not _ready:
+            prepare_database()
+
+
+def inline_replies() -> bool:
+    """INLINE_REPLIES=1 (Vercel): answer inside the webhook request, because a serverless function stops once it has responded."""
+    return os.environ.get("INLINE_REPLIES") == "1"
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    prepare_database()
     if production() and not WA_APP_SECRET:
         log.error("ENV=production but WA_APP_SECRET is not set: the webhook will refuse every call")
     yield
@@ -52,6 +79,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Sweet Crumbs WhatsApp agent", lifespan=lifespan)
 app.include_router(admin.router)
+
+
+@app.middleware("http")
+async def _prepare_on_first_request(request: Request, call_next):
+    if not _ready:
+        await run_in_threadpool(ensure_ready)
+    return await call_next(request)
 
 
 @app.get("/health")
@@ -181,6 +215,7 @@ async def webhook(req: Request, bg: BackgroundTasks):
         body = await req.json()
     except Exception:
         raise HTTPException(400, "bad json")
+    jobs = []
     for entry in body.get("entry", []):
         for change in entry.get("changes", []):
             for msg in change.get("value", {}).get("messages", []):  # delivery/read "statuses" are not messages and are ignored
@@ -190,12 +225,17 @@ async def webhook(req: Request, bg: BackgroundTasks):
                 text = whatsapp.inbound_text(msg)
                 if text is None:  # images/documents (payment proof) go to a person; voice notes etc. get a polite "text only"
                     media = msg.get(kind) or {}
-                    bg.add_task(process_media, sender, kind, media.get("id", ""), media.get("caption", ""), mid)
+                    jobs.append((process_media, (sender, kind, media.get("id", ""), media.get("caption", ""), mid)))
                     continue
                 if not kv.allow(sender, RATE_LIMIT):
                     log.warning("rate limited %s", sender)
                     continue
-                bg.add_task(process, sender, text, mid)
+                jobs.append((process, (sender, text, mid)))
+    for fn, args in jobs:
+        if inline_replies():
+            await run_in_threadpool(fn, *args)   # serverless: finish the reply before answering Meta
+        else:
+            bg.add_task(fn, *args)
     return {"ok": True}
 
 

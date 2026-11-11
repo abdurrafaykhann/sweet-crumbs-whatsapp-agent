@@ -304,3 +304,20 @@ class Counter(Base):
     __tablename__ = "counters"
     name: Mapped[str] = mapped_column(String(30), primary_key=True)
     value: Mapped[int] = mapped_column(Integer)
+
+
+class KvItem(Base):
+    """Shared key/value rows for serverless hosting (KV_BACKEND=db): dedupe marks, rate-limit counters and locks."""
+    __tablename__ = "kv_items"
+    key: Mapped[str] = mapped_column(String(200), primary_key=True)
+    value: Mapped[str] = mapped_column(String(80), default="")
+    n: Mapped[int] = mapped_column(Integer, default=1)
+    expires_at: Mapped[float] = mapped_column(Float, index=True)
+
+
+class KvQueue(Base):
+    """Per-customer waiting messages for serverless hosting (KV_BACKEND=db)."""
+    __tablename__ = "kv_queue"
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    key: Mapped[str] = mapped_column(String(200), index=True)
+    item: Mapped[str] = mapped_column(String)

@@ -21,6 +21,8 @@ def normalize_url(url: str) -> str:
 def make_engine(url: str | None = None):
     url = normalize_url(url or os.environ.get("DATABASE_URL") or DEFAULT_URL)
     kwargs = {"future": True}
+    if url.startswith("postgresql"):  # serverless: few connections per instance (poolers allow few), and drop dead ones
+        kwargs.update(pool_pre_ping=True, pool_size=int(os.environ.get("DB_POOL_SIZE", "2")), max_overflow=int(os.environ.get("DB_MAX_OVERFLOW", "2")), pool_recycle=300)
     if url.startswith("sqlite"):
         kwargs["connect_args"] = {"check_same_thread": False, "timeout": 30}
     engine = create_engine(url, **kwargs)

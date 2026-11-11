@@ -13,10 +13,12 @@ def get_checkpointer(url: str | None = None):
     url = normalize_url(url or os.environ.get("DATABASE_URL") or DEFAULT_URL)
     if url.startswith("postgresql"):
         from langgraph.checkpoint.postgres import PostgresSaver
-        from psycopg import Connection
         from psycopg.rows import dict_row
-        conn = Connection.connect(url.replace("+psycopg", "", 1), autocommit=True, prepare_threshold=0, row_factory=dict_row)
-        saver = PostgresSaver(conn)
+        from psycopg_pool import ConnectionPool
+        pool = ConnectionPool(url.replace("+psycopg", "", 1), min_size=1, max_size=int(os.environ.get("DB_POOL_SIZE", "2")),
+                              kwargs={"autocommit": True, "prepare_threshold": 0, "row_factory": dict_row},
+                              check=ConnectionPool.check_connection, open=True)  # a dead connection is replaced, not reused
+        saver = PostgresSaver(pool)
         saver.setup()
         return saver
     db = make_url(url).database
