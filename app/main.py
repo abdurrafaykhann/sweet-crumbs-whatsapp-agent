@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -210,12 +210,14 @@ async def webhook(req: Request, bg: BackgroundTasks):
         raise HTTPException(503, "WA_APP_SECRET must be set in production")  # fail closed: never accept unsigned calls in production
     raw = await req.body()
     if not _signature_ok(raw, req.headers.get("x-hub-signature-256", "")):
+        log.warning("webhook rejected: signature does not match (check that WA_APP_SECRET is the app secret of the app that owns this number)")
         raise HTTPException(403, "bad signature")
     try:
         body = await req.json()
     except Exception:
         raise HTTPException(400, "bad json")
     jobs = []
+    log.warning("webhook accepted: %d entries", len(body.get("entry", [])))
     for entry in body.get("entry", []):
         for change in entry.get("changes", []):
             for msg in change.get("value", {}).get("messages", []):  # delivery/read "statuses" are not messages and are ignored
@@ -237,6 +239,21 @@ async def webhook(req: Request, bg: BackgroundTasks):
         else:
             bg.add_task(fn, *args)
     return {"ok": True}
+
+
+PRIVACY_HTML = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy policy - Sweet Crumbs demo</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;color:#1c1917}</style></head><body>
+<h1>Privacy policy</h1>
+<p>Sweet Crumbs is a <b>demonstration project</b> for a fictional bakery. It is not a real business.</p>
+<h2>What we receive</h2><p>If you message the demo WhatsApp number we receive your phone number, your profile name and the text of your messages, so the assistant can answer.</p>
+<h2>How it is used</h2><p>Messages are answered by an AI assistant (Groq and Google Gemini models) and stored in a database so that the conversation can continue. They are not sold or used for advertising.</p>
+<h2>Retention and deletion</h2><p>Demo data is kept only for as long as the demonstration runs. To have your messages deleted, contact the project owner through the GitHub repository: github.com/abdurrafaykhann/sweet-crumbs-whatsapp-agent.</p>
+<h2>Contact</h2><p>abdurrafaykhann on GitHub.</p></body></html>"""
+
+
+@app.get("/privacy", include_in_schema=False)
+def privacy():
+    return HTMLResponse(PRIVACY_HTML)
 
 
 # The owner dashboard (React single-page app, hash routes). Mounted last so it never shadows an API route.

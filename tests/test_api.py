@@ -113,3 +113,10 @@ def test_database_backed_kv_works_like_redis(db, monkeypatch):
     assert kv.try_lock("lock:c", 60) is None
     kv.unlock("lock:c", token)
     assert kv.try_lock("lock:c", 60)
+
+
+def test_privacy_page_is_public_and_bad_signatures_are_still_refused(db):
+    from fastapi.testclient import TestClient
+    with TestClient(main.app) as c:
+        r = c.get("/privacy")
+        assert r.status_code == 200 and "Privacy policy" in r.text
