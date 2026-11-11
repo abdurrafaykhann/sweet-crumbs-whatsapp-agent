@@ -129,7 +129,7 @@ Choices made on purpose for a free, demo-ready build, and what comes next:
 - **WhatsApp templates:** replies inside the 24-hour window work today; approved message templates extend status updates beyond it.
 - **Dashboard:** one owner login plus a read-only demo login today; roles and server-sent events are the next upgrade.
 - **Next features:** voice notes (speech-to-text), cake design photos, publishing the full eval table on a fresh quota day.
-- **Status:** built and tested locally; the deployment and WhatsApp test-number steps are documented in docs/DEPLOY.md and docs/WHATSAPP_SETUP.md.
+- **Status:** deployed and public (Vercel + Supabase). The WhatsApp Cloud API integration is built and was verified against Meta's webhook test (signed request accepted, message processed, model reply generated and sent to the Graph API). Live delivery to a phone is currently blocked on Meta's side: the free test business account was locked by Meta (error 131031), which also stops Meta's own sample messages, so the live demo uses the web chat and the dashboard. Steps: docs/DEPLOY.md and docs/WHATSAPP_SETUP.md.
 
 ## Free-tier note
 Everything runs on the free tiers of Groq and Google Gemini. Free tiers may use prompts to improve their models, so only demo data should go through them; real customer data needs a paid tier. The free limits are tight (see [docs/DECISIONS.md](docs/DECISIONS.md)), which is why the prompt, the tool definitions and the chat history are all kept small.
